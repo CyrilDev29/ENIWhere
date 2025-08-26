@@ -1,0 +1,13 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Home{% endblock %}
+
+{% block body %}
+    <section id="intro">
+        <h1>Welcome to ENIWhere!</h1>
+        <p>Discover events, join your campus community, and manage your profile easily.</p>
+        <a href="{{ path('event_index') }}" class="btn btn-primary">See upcoming events</a>
+    </section>
+
+
+{% endblock %}
