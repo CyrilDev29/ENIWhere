@@ -14,10 +14,24 @@ class Registration
     private ?int $id = null;
 
     #[ORM\Column]
-    private ?\DateTime $registrationDate = null;
+    private \DateTime $registrationDate;
 
     #[ORM\Column(nullable: true)]
     private ?\DateTime $cancellationDate = null;
+
+    #[ORM\ManyToOne(inversedBy: 'registrations')]
+    #[ORM\JoinColumn(nullable: true)]
+    private ?User $participant = null;
+
+    #[ORM\ManyToOne(inversedBy: 'registrations')]
+    #[ORM\JoinColumn(nullable: true)]
+    private ?Event $event = null;
+
+
+    public function __construct()
+    {
+        $this->registrationDate = new \DateTime();
+    }
 
     public function getId(): ?int
     {
@@ -44,6 +58,30 @@ class Registration
     public function setCancellationDate(?\DateTime $cancellationDate): static
     {
         $this->cancellationDate = $cancellationDate;
+
+        return $this;
+    }
+
+    public function getParticipant(): ?User
+    {
+        return $this->participant;
+    }
+
+    public function setParticipant(?User $participant): static
+    {
+        $this->participant = $participant;
+
+        return $this;
+    }
+
+    public function getEvent(): ?Event
+    {
+        return $this->event;
+    }
+
+    public function setEvent(?Event $event): static
+    {
+        $this->event = $event;
 
         return $this;
     }
