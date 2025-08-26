@@ -11,6 +11,7 @@ use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
+#[ORM\HasLifecycleCallbacks]
 #[ORM\UniqueConstraint(name: 'UNIQ_IDENTIFIER_EMAIL', fields: ['email'])]
 #[UniqueEntity(fields: ['email'], message: 'There is already an account with this email')]
 #[UniqueEntity(fields: ['username'], message: 'There is already an account with this username')]
@@ -25,7 +26,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[Assert\NotBlank(message: "L'adresse email est obligatoire.")]
     #[Assert\Email(message: "L'adresse email n'est pas valide.")]
     #[Assert\Regex(
-        pattern: "/@campus-eni\.fr$/",
+        pattern: "/^[^@]+@campus-eni\.fr$/i",
         message: "Seules les adresses @campus-eni.fr sont autorisées."
     )]
     private ?string $email = null;
@@ -91,8 +92,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\JoinColumn(nullable: true)]
     private ?Site $site = null;
 
-    #[ORM\Column]
-    private bool $isVerified = false;
+
 
     public function __construct()
     {
@@ -245,10 +245,10 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     {
         return $this->createdAt;
     }
-
-    public function setCreatedAt(\DateTime $createdAt): static
+    #[ORM\PrePersist]
+    public function setCreatedAt(): static
     {
-        $this->createdAt = $createdAt;
+        $this->createdAt = new \DateTime() ;
 
         return $this;
     }
@@ -258,9 +258,10 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this->updatedAt;
     }
 
-    public function setUpdatedAt(?\DateTime $updatedAt): static
+    #[ORM\PreUpdate]
+    public function setUpdatedAt(): static
     {
-        $this->updatedAt = $updatedAt;
+        $this->updatedAt = new \DateTime();
 
         return $this;
     }
@@ -349,15 +350,4 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    public function isVerified(): bool
-    {
-        return $this->isVerified;
-    }
-
-    public function setIsVerified(bool $isVerified): static
-    {
-        $this->isVerified = $isVerified;
-
-        return $this;
-    }
 }

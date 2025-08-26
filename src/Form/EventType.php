@@ -23,9 +23,11 @@ class EventType extends AbstractType
             ->add('registrationDeadline')
             ->add('maxParticipant')
             ->add('description')
+            // revoir  le parame des place
             ->add('place', EntityType::class, [
                 'class' => Place::class,
                 'choice_label' => 'id',
+
             ])
             ->add('site', EntityType::class, [
                 'class' => Site::class,
