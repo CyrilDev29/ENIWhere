@@ -6,8 +6,12 @@ use App\Repository\CityRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: CityRepository::class)]
+#[ORM\Table(name: 'city')]
+#[UniqueEntity(fields: ['name', 'postalCode'], message: 'City already exists!')]
 class City
 {
     #[ORM\Id]
@@ -15,16 +19,20 @@ class City
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column(length: 255)]
+    #[Assert\NotBlank()]
+    #[Assert\Length( max: 150)]
+    #[ORM\Column(length: 150)]
     private ?string $name = null;
 
-    #[ORM\Column(length: 255)]
+    #[Assert\NotBlank()]
+    #[Assert\Length( max: 12)]
+    #[ORM\Column(length: 12)]
     private ?string $postalCode = null;
 
     /**
      * @var Collection<int, Place>
      */
-    #[ORM\OneToMany(targetEntity: Place::class, mappedBy: 'city', orphanRemoval: true)]
+    #[ORM\OneToMany(targetEntity: Place::class, mappedBy: 'city', orphanRemoval: true, cascade: ['persist'])]
     private Collection $places;
 
     public function __construct()
@@ -32,6 +40,10 @@ class City
         $this->places = new ArrayCollection();
     }
 
+    public function __toString(): string
+    {
+        return $this->name ? sprintf( '%s (%s)', $this->name, $this->postalCode) : 'Ville';
+    }
     public function getId(): ?int
     {
         return $this->id;
