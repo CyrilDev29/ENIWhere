@@ -1,14 +1,121 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Créer une sortie{% endblock %}
-
 {% block body %}
-    <h1>Créer une sortie</h1>
+    <h1>Nouvel Événement</h1>
 
     {{ form_start(form) }}
-    {{ form_widget(form) }}
+
+    {{ form_row(form.name) }}
+    {{ form_row(form.startDateTime) }}
+    {{ form_row(form.duration) }}
+    {{ form_row(form.registrationDeadline) }}
+    {{ form_row(form.maxParticipant) }}
+    {{ form_row(form.description) }}
+
+    <div class="autocomplete-container" style="position: relative;">
+        {{ form_row(form.place) }}
+        <ul id="suggestions" class="suggestions-list"></ul>
+    </div>
+    {{ form_row(form.street) }}
+    {{ form_row(form.postalCode) }}
+    {{ form_row(form.city) }}
+    {{ form_row(form.gpsLatitude) }}
+    {{ form_row(form.gpsLongitude) }}
+    {{ form_row(form.site) }}
+
+
     <button type="submit">Enregistrer</button>
+
     {{ form_end(form) }}
 
     <p><a href="{{ path('event_index') }}">← Retour à la liste</a></p>
+
+    <style>
+        .suggestions-list {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            border: 1px solid #ccc;
+            max-height: 150px;
+            overflow-y: auto;
+            position: absolute;
+            background: white;
+            width: 100%;
+            z-index: 1000;
+        }
+
+        .suggestions-list li {
+            padding: 5px;
+            cursor: pointer;
+        }
+
+        .suggestions-list li:hover {
+            background: #f0f0f0;
+        }
+    </style>
+
+    <script>
+        // pour le moment en vrac
+        const input = document.querySelector('.autocomplete-place');
+        const suggestionsList = document.querySelector('#suggestions');
+        const cityInput = document.querySelector('#event_city');
+        const latInput = document.querySelector('#event_gpsLatitude');
+        const lonInput = document.querySelector('#event_gpsLongitude');
+
+        let suggestions = [];
+
+        input.addEventListener('input', async function() {
+            const query = this.value;
+            if(query.length < 3) {
+                suggestionsList.innerHTML = '';
+                return;
+            }
+            console.log('Suggestions:', suggestions);
+
+            const response = await fetch(`/places/search?q=${encodeURIComponent(query)}`);
+            suggestions = await response.json();
+
+            suggestionsList.innerHTML = '';
+            suggestions.forEach((place, index) => {
+                const li = document.createElement('li');
+                li.textContent = place.display_name;
+                li.addEventListener('click', () => selectSuggestion(index));
+                suggestionsList.appendChild(li);
+            });
+        });
+
+        function selectSuggestion(index) {
+            const place = suggestions[index];
+
+
+            const nameParts = place.display_name.split(',');
+            input.value = nameParts[0].trim();
+
+            const address = place.address || {};
+            const streetInput = document.querySelector('#event_street');
+            const postalCodeInput = document.querySelector('#event_postalCode');
+            console.log('Nominatim address object:', place.address);
+
+            cityInput.value = address.city
+                || address.town
+                || address.village
+                || address.municipality
+                || address.county
+                || '';
+
+            latInput.value = place.lat || '';
+            lonInput.value = place.lon || '';
+            streetInput.value = (address.house_number ? address.house_number + ' ' : '') + (address.road || '');
+            postalCodeInput.value = address.postcode || '';
+
+            suggestionsList.innerHTML = '';
+        }
+
+        //------------- Fermer la liste de suggestions si on clique en dehors---------------------------
+        document.addEventListener('click', function(e) {
+            if (!suggestionsList.contains(e.target) && e.target !== input) {
+                suggestionsList.innerHTML = '';
+            }
+        });
+    </script>
 {% endblock %}
