@@ -19,6 +19,8 @@ class NominatimService
                 'q' => $query,
                 'format' => 'json',
                 'limit' => 5,
+                'countrycodes' => 'FR',
+                'addressdetails' => 1, /// ----------mama mia
             ],
             'headers' => [
                 'User-Agent' => 'MySymfonyAppDev/1.0 (dev@localhost)',

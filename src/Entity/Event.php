@@ -7,8 +7,10 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: EventRepository::class)]
+#[ORM\HasLifecycleCallbacks]
 class Event
 {
     #[ORM\Id]
@@ -20,12 +22,14 @@ class Event
     private ?string $name = null;
 
     #[ORM\Column]
+    #[Assert\GreaterThan('today',message: "Attention la date de debut ne doit pas être postérieur à {{compared_value}}.}}!!")]
     private ?\DateTime $startDateTime = null;
 
     #[ORM\Column]
     private ?float $duration = null;
 
     #[ORM\Column]
+    #[Assert\LessThan(propertyPath: 'startDateTime')]
     private ?\DateTime $registrationDeadline = null;
 
     #[ORM\Column]
