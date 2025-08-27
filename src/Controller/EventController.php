@@ -26,13 +26,18 @@ final class EventController extends AbstractController
         $this->nominatimService = $nominatimService;
     }
     #[Route('/events', name: 'event_index')]
-    public function index(EventRepository $eventRepository): Response
+    public function index(Request $request, EventRepository $eventRepository): Response
     {
+        $form = $this->createForm(\App\Form\EventFilterType::class);
+        $form->handleRequest($request);
 
-        $events = $eventRepository->findAll();
+        $filters = $form->getData() ?? [];
+
+        $events = $eventRepository->searchByFilters($filters, $this->getUser());
 
         return $this->render('event/index.html.twig', [
             'events' => $events,
+            'filterForm' => $form->createView(),
         ]);
     }
 
@@ -116,4 +121,5 @@ final class EventController extends AbstractController
 
         return new JsonResponse($results);
     }
+
 }
