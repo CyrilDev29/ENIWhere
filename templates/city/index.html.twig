@@ -1,0 +1,29 @@
+{% extends 'base.html.twig' %}
+{% block title 'Villes' %}
+
+{% block body %}
+    <h1>Villes</h1>
+
+    <a href="{{ path('city_new') }}" class="btn btn-primary">Nouvelle ville</a>
+
+    <table class="table mt-3">
+        <thead><tr><th>Nom</th><th>Code postal</th><th></th></tr></thead>
+        <tbody>
+        {% for city in cities %}
+            <tr>
+                <td>{{ city.name }}</td>
+                <td>{{ city.postalCode }}</td>
+                <td>
+                    <a href="{{ path('city_edit', {id: city.id}) }}" class="btn btn-sm btn-secondary">Éditer</a>
+                    <form method="post" action="{{ path('city_delete', {id: city.id}) }}" style="display:inline" onsubmit="return confirm('Supprimer ?');">
+                        <input type="hidden" name="_token" value="{{ csrf_token('delete_city_' ~ city.id) }}">
+                        <button class="btn btn-sm btn-danger">Supprimer</button>
+                    </form>
+                </td>
+            </tr>
+        {% else %}
+            <tr><td colspan="3">Aucune ville</td></tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}
