@@ -40,4 +40,77 @@ class EventRepository extends ServiceEntityRepository
     //            ->getOneOrNullResult()
     //        ;
     //    }
+
+    public function searchByFilters(array $f, ?\App\Entity\User $user): array
+    {
+        $qb = $this->createQueryBuilder('e')
+            ->leftJoin('e.registrations', 'r')
+            ->addSelect('r')
+            ->leftJoin('e.site', 's')
+            ->addSelect('s')
+            ->leftJoin('e.state', 'st')
+            ->addSelect('st')
+            ->leftJoin('e.place', 'p')
+            ->addSelect('p')
+            ->leftJoin('e.organizer', 'o')
+            ->addSelect('o')
+            ->orderBy('e.startDateTime', 'ASC')
+            ->distinct();
+
+        // Site
+        if (!empty($f['site'])) {
+            $qb->andWhere('e.site = :site')
+                ->setParameter('site', $f['site']);
+        }
+
+        // Recherche texte
+        if (!empty($f['q'])) {
+            $qb->andWhere('LOWER(e.name) LIKE :q')
+                ->setParameter('q', '%' . strtolower($f['q']) . '%');
+        }
+
+        // Dates
+        if (!empty($f['dateFrom'])) {
+            $qb->andWhere('e.startDateTime >= :from')
+                ->setParameter('from', $f['dateFrom']);
+        }
+        if (!empty($f['dateTo'])) {
+            $qb->andWhere('e.startDateTime <= :to')
+                ->setParameter('to', $f['dateTo']);
+        }
+
+        // Par défaut on n’affiche que les "a venir"
+        if (empty($f['includePast'])) {
+            $qb->andWhere('e.startDateTime >= :now')
+                ->setParameter('now', new \DateTime());
+        }
+
+        // organisateur
+        if (!empty($f['isOrganizer']) && $user) {
+            $qb->andWhere('e.organizer = :user')
+                ->setParameter('user', $user);
+        }
+
+        // Inscrit ou noninscrit
+        if (!empty($f['isRegistered']) && $user && empty($f['isNotRegistered'])) {
+            $qb->andWhere(':user MEMBER OF e.registrations')
+                ->setParameter('user', $user);
+        }
+        if (!empty($f['isNotRegistered']) && $user && empty($f['isRegistered'])) {
+            $qb->andWhere(':user NOT MEMBER OF e.registrations')
+                ->setParameter('user', $user);
+        }
+
+        return $qb->getQuery()->getResult();
+    }
+
+
+
+
 }
+
+
+
+
+
+

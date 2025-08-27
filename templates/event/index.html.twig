@@ -5,6 +5,23 @@
 {% block body %}
     <h1>Toutes les sorties</h1>
 
+    <div class="filters">
+        {{ form_start(filterForm, { method: 'get' }) }}
+        {{ form_row(filterForm.site) }}
+        {{ form_row(filterForm.q) }}
+        {{ form_row(filterForm.dateFrom) }}
+        {{ form_row(filterForm.dateTo) }}
+        <div class="checkboxes">
+            {{ form_row(filterForm.isOrganizer) }}
+            {{ form_row(filterForm.isRegistered) }}
+            {{ form_row(filterForm.isNotRegistered) }}
+            {{ form_row(filterForm.includePast) }}
+        </div>
+        <button type="submit">Rechercher</button>
+        <a href="{{ path('event_index') }}">Réinitialiser</a>
+        {{ form_end(filterForm) }}
+    </div>
+
     {% if events is empty %}
         <p>Aucune sortie trouvée.</p>
     {% else %}
@@ -17,23 +34,19 @@
                 <th>Lieu</th>
                 <th>État</th>
                 <th>Inscrits</th>
+                <th>Organisateur</th>
             </tr>
             </thead>
             <tbody>
             {% for e in events %}
                 <tr>
                     <td>{{ e.name }}</td>
-                    <td>
-                        {% if e.startDateTime %}
-                            {{ e.startDateTime|date('d/m/Y H:i') }}
-                        {% else %}
-                            -
-                        {% endif %}
-                    </td>
+                    <td>{{ e.startDateTime ? e.startDateTime|date('d/m/Y H:i') : '-' }}</td>
                     <td>{{ e.site ? e.site.name : '-' }}</td>
                     <td>{{ e.place ? e.place.name : '-' }}</td>
                     <td>{{ e.state ? e.state.label : '-' }}</td>
                     <td>{{ e.registrations|length }}/{{ e.maxParticipant ?? '-' }}</td>
+                    <td>{{ e.organizer ? e.organizer.username : '-' }}</td>
                 </tr>
             {% endfor %}
             </tbody>
