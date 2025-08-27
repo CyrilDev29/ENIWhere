@@ -45,4 +45,5 @@ final class ProfileController extends AbstractController
 
         );
     }
+
 }
