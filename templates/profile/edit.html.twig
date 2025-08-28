@@ -1,76 +1,72 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Modifier mon profil{% endblock %}
+{% block title %}
+    {% if is_admin %}
+        Modifier l'utilisateur {{ form.vars.data.username }}
+    {% else %}
+        Modifier mon profil
+    {% endif %}
+{% endblock %}
 
 {% block body %}
     <div class="container mt-5">
-        <h1>Modifier mon profil</h1>
+        <h1 class="mb-4">
+            {% if is_admin %}
+                Modifier l'utilisateur {{ form.vars.data.username }}
+            {% else %}
+                Modifier mon profil
+            {% endif %}
+        </h1>
 
+        {# --- Flash messages --- #}
         {% for label, messages in app.flashes %}
             {% for message in messages %}
-                <div class="alert alert-{{ label == 'success' ? 'success' : 'danger' }}">
+                <div class="alert alert-{{ label }} alert-dismissible fade show" role="alert">
                     {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
             {% endfor %}
         {% endfor %}
 
-        {{ form_start(form, {'attr': {'class': 'needs-validation', 'novalidate': 'novalidate'}}) }}
+        {{ form_start(form, {'attr': {'class': 'row g-3 needs-validation', 'novalidate': 'novalidate'}}) }}
 
-        <div class="mb-3">
-            {{ form_label(form.lastName) }}
-            {{ form_widget(form.lastName, {'attr': {'class': 'form-control'}}) }}
-            {{ form_errors(form.lastName) }}
+        <div class="col-md-6">
+            {{ form_row(form.lastName, {'attr': {'class': 'form-control'}}) }}
         </div>
-
-        <div class="mb-3">
-            {{ form_label(form.firstName) }}
-            {{ form_widget(form.firstName, {'attr': {'class': 'form-control'}}) }}
-            {{ form_errors(form.firstName) }}
+        <div class="col-md-6">
+            {{ form_row(form.firstName, {'attr': {'class': 'form-control'}}) }}
         </div>
-
-        <div class="mb-3">
-            {{ form_label(form.username) }}
-            {{ form_widget(form.username, {'attr': {'class': 'form-control'}}) }}
-            {{ form_errors(form.username) }}
+        <div class="col-md-6">
+            {{ form_row(form.username, {'attr': {'class': 'form-control'}}) }}
         </div>
-
-        <div class="mb-3">
-            {{ form_label(form.email) }}
-            {{ form_widget(form.email, {'attr': {'class': 'form-control'}}) }}
-            {{ form_errors(form.email) }}
+        <div class="col-md-6">
+            {{ form_row(form.email, {'attr': {'class': 'form-control'}}) }}
         </div>
-
-        <div class="mb-3">
-            {{ form_label(form.phoneNumber) }}
-            {{ form_widget(form.phoneNumber, {'attr': {'class': 'form-control'}}) }}
-            {{ form_errors(form.phoneNumber) }}
+        <div class="col-md-6">
+            {{ form_row(form.phoneNumber, {'attr': {'class': 'form-control'}}) }}
         </div>
-
-        <div class="mb-3">
-            {{ form_label(form.plainPassword, 'Mot de passe') }}
-            {{ form_widget(form.plainPassword, {'attr': {'class': 'form-control'}}) }}
-            {{ form_errors(form.plainPassword) }}
+        <div class="col-md-6">
+            {{ form_row(form.plainPassword, {'label': 'Mot de passe', 'attr': {'class': 'form-control'}}) }}
         </div>
 
         {% if form.site is defined %}
-            <div class="mb-3">
-                {{ form_label(form.site) }}
-                {{ form_widget(form.site, {'attr': {'class': 'form-select'}}) }}
-                {{ form_errors(form.site) }}
+            <div class="col-md-6">
+                {{ form_row(form.site, {'attr': {'class': 'form-select'}}) }}
             </div>
         {% endif %}
 
         {% if form.roles is defined %}
-            <div class="mb-3">
-                {{ form_label(form.roles) }}
-                {{ form_widget(form.roles) }}
-                {{ form_errors(form.roles) }}
+            <div class="col-md-12">
+                {{ form_row(form.roles) }}
             </div>
         {% endif %}
 
         {{ form_rest(form) }}
 
-        <button type="submit" class="btn btn-primary">Enregistrer</button>
+        <div class="col-12 mt-3 d-flex">
+            <button type="submit" class="btn btn-primary me-2">Enregistrer</button>
+            <a href="{{ is_admin ? path('admin_user_list') : path('profile_show') }}" class="btn btn-secondary">Annuler</a>
+        </div>
 
         {{ form_end(form) }}
     </div>

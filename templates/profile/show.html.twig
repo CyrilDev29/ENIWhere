@@ -1,0 +1,20 @@
+{% extends 'base.html.twig' %}
+
+{% block title %} {{ parent() }} -Profil de {{ user.username }}{% endblock %}
+
+{% block body %}
+
+
+    <div>
+        <p><strong>Email :</strong> {{ user.email }}</p>
+        <p><strong>Pseudo :</strong> {{ user.username }}</p>
+        <p><strong>Téléphone :</strong> {{ user.phoneNumber ?: 'Non renseigné' }}</p>
+        <p><strong>Site :</strong> {{ user.site ? user.site.name : 'Non attribué' }}</p>
+    </div>
+
+    {% if app.user and app.user.id == user.id %}
+        <a href="{{ path('profile_edit') }}" class="btn btn-primary">Modifier</a>
+    {% endif %}
+
+    <a href="{{ path('app_main') }}" class="btn btn-secondary">Retour</a>
+{% endblock %}

@@ -1,36 +1,42 @@
 {% extends 'base.html.twig' %}
 
 {% block body %}
-    <h1>Nouvel Événement</h1>
+    {% if app.user %}
+        <h1>Nouvel Événement</h1>
 
-    {{ form_start(form) }}
+        {{ form_start(form) }}
 
-    {{ form_row(form.name) }}
-    {{ form_row(form.startDateTime) }}
-    {{ form_row(form.duration) }}
-    {{ form_row(form.registrationDeadline) }}
-    {{ form_row(form.maxParticipant) }}
-    {{ form_row(form.description) }}
+        {{ form_row(form.name) }}
+        {{ form_row(form.startDateTime) }}
+        {{ form_row(form.duration) }}
+        {{ form_row(form.registrationDeadline) }}
+        {{ form_row(form.maxParticipant) }}
+        {{ form_row(form.description) }}
 
-    <div class="autocomplete-container" style="position: relative;">
-        {{ form_row(form.place) }}
-        <ul id="suggestions" class="suggestions-list"></ul>
-    </div>
-    {{ form_row(form.street) }}
-    {{ form_row(form.postalCode) }}
-    {{ form_row(form.city) }}
-    {{ form_row(form.gpsLatitude) }}
-    {{ form_row(form.gpsLongitude) }}
-    {{ form_row(form.site) }}
+        <div class="autocomplete-container" style="position: relative;">
+            {{ form_row(form.place) }}
+            <ul id="suggestions" class="suggestions-list"></ul>
+        </div>
+        {{ form_row(form.street) }}
+        {{ form_row(form.postalCode) }}
+        {{ form_row(form.city) }}
+        {{ form_row(form.gpsLatitude) }}
+        {{ form_row(form.gpsLongitude) }}
+        {{ form_row(form.site) }}
+
+        <button type="submit">Enregistrer</button>
+
+        {{ form_end(form) }}
+
+        <p><a href="{{ path('event_index') }}">← Retour à la liste</a></p>
+
+        <!-- Ici ton style et script pour l'autocomplete -->
+    {% else %}
+        <p>Vous devez être connecté pour créer un événement. <a href="{{ path('app_login') }}">Se connecter</a></p>
+    {% endif %}
 
 
-    <button type="submit">Enregistrer</button>
-
-    {{ form_end(form) }}
-
-    <p><a href="{{ path('event_index') }}">← Retour à la liste</a></p>
-
-    <style>
+<style>
         .suggestions-list {
             list-style: none;
             margin: 0;
@@ -61,6 +67,8 @@
         const cityInput = document.querySelector('#event_city');
         const latInput = document.querySelector('#event_gpsLatitude');
         const lonInput = document.querySelector('#event_gpsLongitude');
+        const streetInput = document.querySelector('#event_street');
+        const postalCodeInput = document.querySelector('#event_postalCode');
 
         let suggestions = [];
 
@@ -92,8 +100,6 @@
             input.value = nameParts[0].trim();
 
             const address = place.address || {};
-            const streetInput = document.querySelector('#event_street');
-            const postalCodeInput = document.querySelector('#event_postalCode');
             console.log('Nominatim address object:', place.address);
 
             cityInput.value = address.city
@@ -105,7 +111,14 @@
 
             latInput.value = place.lat || '';
             lonInput.value = place.lon || '';
-            streetInput.value = (address.house_number ? address.house_number + ' ' : '') + (address.road || '');
+            let streetParts = [];
+            if (address.house_number) streetParts.push(address.house_number);
+            if (address.road) streetParts.push(address.road);
+            if (address.neighbourhood) streetParts.push(address.neighbourhood); // fallback
+            if (address.suburb) streetParts.push(address.suburb); // fallback
+
+            streetInput.value = streetParts.join(' ').trim();
+
             postalCodeInput.value = address.postcode || '';
 
             suggestionsList.innerHTML = '';

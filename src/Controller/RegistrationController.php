@@ -34,26 +34,26 @@ class RegistrationController extends AbstractController
 
 
 
-    #[Route('/admin/users/update/{id}', name: 'admin_user_edit',requirements: ['id' => '\d+'])]
-    public function edit(User $user,Request $request,EntityManagerInterface $entityManager,UserPasswordHasherInterface $userPasswordHasher): Response
+    #[Route('/admin/users/update/{id}', name: 'admin_user_edit', requirements: ['id' => '\d+'])]
+    public function edit(User $user, Request $request, EntityManagerInterface $entityManager, UserPasswordHasherInterface $userPasswordHasher): Response
     {
-
         $form = $this->createForm(RegistrationFormType::class, $user, [
-            'is_registration'=>false,
-            'is_admin'=>true,
-
+            'is_registration' => false,
+            'is_admin' => true,
+            'is_edit' => true,
         ]);
+
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-
             $plainPassword = $form->get('plainPassword')->getData();
             if ($plainPassword) {
                 $user->setPassword($userPasswordHasher->hashPassword($user, $plainPassword));
             }
-            $user->setIsActive(true);
-            $email = trim($form->get('email')->getData());
-            $user->setEmail($email);
+            if ($form->has('isActive')) {
+                $user->setIsActive($form->get('isActive')->getData());
+            }
+
             $entityManager->persist($user);
             $entityManager->flush();
 
@@ -62,8 +62,9 @@ class RegistrationController extends AbstractController
             return $this->redirectToRoute('admin_user_list');
         }
 
-        return $this->render('registration/register.html.twig', [
-            'registrationForm' => $form,
+        return $this->render('profile/edit.html.twig', [
+            'form' => $form->createView(),
+            'is_admin' => true,
         ]);
     }
 

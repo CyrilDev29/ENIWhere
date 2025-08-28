@@ -12,7 +12,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route('/admin/cities', name: 'city_')]
+#[Route('/cities', name: 'city_')]
 final class CityController extends AbstractController
 {
     #[Route('', name: 'index', methods: ['GET'])]
@@ -24,7 +24,7 @@ final class CityController extends AbstractController
     }
 
 
-#[Route('/new', name: 'new', methods: ['GET', 'POST'])]
+#[Route('/cities/new', name: 'new', methods: ['GET', 'POST'])]
 public function new(Request $request, EntityManagerInterface $em): Response
 {
     $city = new City();
@@ -39,7 +39,7 @@ public function new(Request $request, EntityManagerInterface $em): Response
     return $this->render('city/new.html.twig', ['form' => $form->createView()]);
 }
 
-#[Route('/{id}/edit', name: 'edit', methods: ['GET', 'POST'])]
+#[Route('cities/{id}/edit', name: 'edit', methods: ['GET', 'POST'])]
 public function edit( City $city, Request $request, EntityManagerInterface $em): Response
 {
     $form = $this->createForm(CityType::class, $city)->handleRequest($request);
