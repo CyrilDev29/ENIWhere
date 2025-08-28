@@ -22,7 +22,7 @@ class Event
     private ?string $name = null;
 
     #[ORM\Column]
-    #[Assert\GreaterThan('today',message: "Attention la date de debut ne doit pas être postérieur à {{compared_value}}.}}!!")]
+    #[Assert\GreaterThan('today', message: "Attention la date de debut ne doit pas être postérieur à {{compared_value}}.}}!!")]
     private ?\DateTime $startDateTime = null;
 
     #[ORM\Column]
@@ -69,6 +69,20 @@ class Event
     #[ORM\ManyToOne(inversedBy: 'events')]
     #[ORM\JoinColumn(nullable: true)]
     private ?Site $site = null;
+
+    #[ORM\Column(length: 30)]
+    private ?string $status = 'draft';
+
+    public function getStatus(): ?string
+    {
+        return $this->status;
+    }
+
+    public function setStatus(string $status):self
+    {
+        $this->status = $status;
+        return $this;
+    }
 
     public function __construct()
     {
@@ -265,4 +279,30 @@ class Event
 
         return $this;
     }
+
+    public function getEndDateTime(): ?\DateTime
+    {
+        if (!$this->startDateTime || $this->duration === null) {
+            return null;
+        }
+        $end = clone $this->startDateTime;
+
+        $end->modify('+' . (int)$this->duration . ' minutes');
+        return $end;
+    }
+
+    /** Date d’ouverture des inscriptions : si tu n’as pas de champ dédié, on ouvre dès la publication */
+    public function getRegistrationOpenAt(): ?\DateTime
+    {
+        // pas de champ dédié -> on considère l'ouverture immédiate
+        return $this->createdAt ?: $this->startDateTime;
+    }
+
+    /** Date de fermeture des inscriptions = registrationDeadline */
+    public function getRegistrationCloseAt(): ?\DateTime
+    {
+        return $this->registrationDeadline;
+    }
+
+
 }
