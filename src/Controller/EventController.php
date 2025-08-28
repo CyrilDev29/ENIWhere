@@ -5,10 +5,11 @@ namespace App\Controller;
 use App\Entity\City;
 use App\Entity\Event;
 use App\Entity\Place;
+use App\Entity\Registration;
 use App\Form\EventType;
+use App\Form\InscriptionType;
 use App\Helper\NominatimService;
 use App\Repository\EventRepository;
-use App\Repository\PlaceRepository;
 use App\Repository\StateRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -25,6 +26,7 @@ final class EventController extends AbstractController
     {
         $this->nominatimService = $nominatimService;
     }
+
     #[Route('/events', name: 'event_index')]
     public function index(Request $request, EventRepository $eventRepository): Response
     {
@@ -43,10 +45,11 @@ final class EventController extends AbstractController
 
     #[Route('/events/new', name: 'event_new')]
     public function new(
-        Request $request,
+        Request                $request,
         EntityManagerInterface $em,
-        StateRepository $stateRepository,
-    ): Response {
+        StateRepository        $stateRepository,
+    ): Response
+    {
         $event = new Event();
         $form = $this->createForm(EventType::class, $event);
         $form->handleRequest($request);
@@ -58,12 +61,12 @@ final class EventController extends AbstractController
             $event->setCreatedDate(new \DateTime());
 
             // ----------------Récupérer les données du formulaire---------------------
-            $placeName = (string) $form->get('place')->getData();
-            $cityName  = (string) $form->get('city')->getData();
-            $lat       = (float) $form->get('gpsLatitude')->getData();
-            $lon       = (float) $form->get('gpsLongitude')->getData();
-            $street = (string) $form->get('street')->getData();
-            $postalCode = (string) $form->get('postalCode')->getData();
+            $placeName = (string)$form->get('place')->getData();
+            $cityName = (string)$form->get('city')->getData();
+            $lat = (float)$form->get('gpsLatitude')->getData();
+            $lon = (float)$form->get('gpsLongitude')->getData();
+            $street = (string)$form->get('street')->getData();
+            $postalCode = (string)$form->get('postalCode')->getData();
 
 
             // Gestion de la ville
@@ -110,6 +113,7 @@ final class EventController extends AbstractController
             'form' => $form->createView(),
         ]);
     }
+
     #[Route('/places/search', name: 'place_search')]
     public function placeSearch(Request $request): JsonResponse
     {
@@ -121,5 +125,6 @@ final class EventController extends AbstractController
 
         return new JsonResponse($results);
     }
+
 
 }
