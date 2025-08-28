@@ -13,7 +13,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
 
-#[Route('/admin/places', name: 'place_')]
+#[Route('/places', name: 'place_')]
 final class PlaceController extends AbstractController
 {
     #[Route('', name: 'index', methods: ['GET'])]
@@ -23,7 +23,7 @@ final class PlaceController extends AbstractController
             'places' => $repo->findBy([], ['name' => 'ASC']),
         ]);
     }
-    #[Route('/new', name: 'new', methods: ['GET', 'POST'])]
+    #[Route('places/new', name: 'new', methods: ['GET', 'POST'])]
     public function new(Request $request, EntityManagerInterface $em): Response
     {
         $place = new City();
@@ -37,7 +37,7 @@ final class PlaceController extends AbstractController
         }
         return $this->render('place/new.html.twig', ['form' => $form->createView()]);
     }
-    #[Route('/{id}/edit', name: 'edit', methods: ['GET', 'POST'])]
+    #[Route('place/edit/{id}', name: 'edit', methods: ['GET', 'POST'])]
     public function edit(Place $place, Request $request, EntityManagerInterface $em): Response
     {
         $form = $this->createForm(CityType::class, $place)->handleRequest($request);
@@ -55,7 +55,7 @@ final class PlaceController extends AbstractController
     }
 
 
-    #[Route('/{id}', name: 'delete', methods: [ 'POST'])]
+    #[Route('place/delete/{id}', name: 'delete', methods: [ 'POST'])]
     public function delete(Place $place,Request $request, EntityManagerInterface $em): Response
     {
 

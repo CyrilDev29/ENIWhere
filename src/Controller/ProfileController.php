@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\User;
 use App\Form\ProfileFormType;
+use App\Form\RegistrationFormType;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -16,34 +17,45 @@ use Twig\Profiler\Profile;
 final class ProfileController extends AbstractController
 {
     #[Route('/profile/edit', name: 'profile_edit')]
-    public function edit(Request $request, EntityManagerInterface $em,
-                         UserPasswordHasherInterface $passwordHasher, MailerInterface $mailer): Response
+    public function edit(Request $request, EntityManagerInterface $em, UserPasswordHasherInterface $passwordHasher): Response
     {
-        /** @var User $user */
         $user = $this->getUser();
-        $form = $this->createForm(ProfileFormType::class, $user);
+
+        $form = $this->createForm(RegistrationFormType::class, $user, [
+            'is_edit' => true,
+            'is_admin' => $this->isGranted('ROLE_ADMIN'),
+        ]);
 
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
             $plainPassword = $form->get('plainPassword')->getData();
             if ($plainPassword) {
-                $hashedPassword = $passwordHasher->hashPassword($user, $plainPassword);
-                $user->setPassword($hashedPassword);
+                $user->setPassword($passwordHasher->hashPassword($user, $plainPassword));
             }
+
             $em->persist($user);
             $em->flush();
 
+            $this->addFlash('success', 'Votre profil a été mis à jour.');
 
-            $this->addFlash('success', 'Un nouveau profile été crée');
-           return $this->redirectToRoute('profile_edit');
+            return $this->redirectToRoute('profile_show');
         }
 
         return $this->render('profile/edit.html.twig', [
             'form' => $form->createView(),
-            ]
-
-        );
+            'is_admin' => false,
+        ]);
     }
 
+    #[Route('/profile', name: 'profile_show')]
+    public function show(): Response
+    {
+        /** @var User $user */
+        $user = $this->getUser();
+
+        return $this->render('profile/show.html.twig', [
+            'user' => $user,
+        ]);
+    }
 }

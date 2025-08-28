@@ -45,32 +45,35 @@ final class EventType extends AbstractType
             ->add('place', TextType::class, [
                 'label' => 'Lieu',
                 'mapped' => false,
-                'attr' => ['class' => 'autocomplete-place']
+                'attr' => [
+                    'class' => 'autocomplete-place',
+                    'placeholder' => 'Tapez un lieu ou sélectionnez dans la liste'
+                ]
             ])
             ->add('street', TextType::class, [
                 'label' => 'Rue',
                 'mapped' => false,
-                'attr' => ['readonly' => true]
+                'attr' => ['placeholder' => 'Saisissez la rue']
             ])
             ->add('postalCode', TextType::class, [
                 'label' => 'Code postal',
                 'mapped' => false,
-                'attr' => ['readonly' => true]
+                'attr' => ['Saisissez le code postal']
             ])
             ->add('city', TextType::class, [
                 'label' => 'Ville',
                 'mapped' => false,
-                'attr' => ['readonly' => true]
+                'attr' => ['Saisissez le code postal']
             ])
             ->add('gpsLatitude', NumberType::class, [
                 'label' => 'Latitude',
                 'mapped' => false,
-                'attr' => ['readonly' => true]
+                'attr' => ['Saisissez le code postal']
             ])
             ->add('gpsLongitude', NumberType::class, [
                 'label' => 'Longitude',
                 'mapped' => false,
-                'attr' => ['readonly' => true]
+                'attr' => ['Saisissez le code postal']
             ])
             ->add('site', EntityType::class, [
                 'class' => Site::class,

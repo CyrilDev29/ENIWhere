@@ -21,29 +21,28 @@ class RegistrationFormType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
-
         $isRegistration = $options['is_registration'];
         $isAdmin = $options['is_admin'];
-        $isEdit = $options['is_edit']; // a utiliser pour acriver /desactiver user
+        $isEdit = $options['is_edit'];
 
         $builder
             ->add('lastName', TextType::class, [
-                'label' => 'Last name',
-
+                'label' => 'Nom',
             ])
-            ->add('firstName',TextType::class, [
-                'label' => 'First name',
+            ->add('firstName', TextType::class, [
+                'label' => 'Prénom',
             ])
             ->add('username', TextType::class, [
-                'label' => 'Username',
+                'label' => 'Pseudo',
+                'disabled' => $isEdit && !$isAdmin, // ----l'utilisateur ne peut pas changer son pseudo
             ])
-
             ->add('phoneNumber', TextType::class, [
-                'label' => 'Phone number',
+                'label' => 'Téléphone',
                 'required' => false,
             ])
             ->add('email', EmailType::class, [
                 'label' => 'Email',
+                'disabled' => $isEdit && !$isAdmin, // ----l'utilisateur ne peut pas changer son email
                 'constraints' => [
                     new NotBlank([
                         'message' => "L'adresse email est obligatoire."
@@ -56,44 +55,60 @@ class RegistrationFormType extends AbstractType
                         'message' => "Seules les adresses @campus-eni.fr sont autorisées."
                     ])
                 ]
-            ]);
-
-        $builder->add('plainPassword', PasswordType::class, [
-            'mapped' => false,
-            'required' => $isRegistration,
-            'attr' => ['autocomplete' => 'new-password'],
-            'constraints' => [
-                new Length([
-                    'min' => 6,
-                    'minMessage' => 'The password must be at least {{ limit }} characters long',
-                    'max' => 4096,
-                ]),
-                ...($isRegistration ? [new NotBlank(['message' => 'Please enter a password'])] : []),
-            ],
-        ]);
-
-        if ($options['is_admin']) {
-            $builder->add('site', EntityType::class, [
-                'class' => Site::class,
-                'choice_label' => 'name',
-                'placeholder' => 'Choose a site',
-                'required' => false,
-            ]);
-
-            $builder->add('roles', ChoiceType::class, [
-                'choices' => [
-                    'User' => 'ROLE_USER',
-                    'Admin' => 'ROLE_ADMIN',
+            ])
+            ->add('plainPassword', PasswordType::class, [
+                'mapped' => false,
+                'required' => $isRegistration,
+                'attr' => ['autocomplete' => 'new-password'],
+                'constraints' => [
+                    new Length([
+                        'min' => 8,
+                        'minMessage' => 'Le mot de passe doit contenir au moins {{ limit }} caractères.',
+                        'max' => 4096,
+                    ]),
+                    ...($isRegistration ? [new NotBlank(['message' => 'Veuillez entrer un mot de passe'])] : []),
                 ],
-                'expanded' => true,
-                'multiple' => true,
-                'label' => 'Roles',
             ]);
 
+
+        if ($isAdmin) {
+
+            $builder
+                ->add('site', EntityType::class, [
+                    'class' => Site::class,
+                    'choice_label' => 'name',
+                    'placeholder' => 'Choisir un site',
+                    'required' => false,
+                ])
+                ->add('roles', ChoiceType::class, [
+                    'choices' => [
+                        'Utilisateur' => 'ROLE_USER',
+                        'Administrateur' => 'ROLE_ADMIN',
+                    ],
+                    'expanded' => true,
+                    'multiple' => true,
+                    'label' => 'Rôles',
+                ])
+                ->add('isActive', ChoiceType::class, [
+                    'choices' => [
+                        'Actif' => true,
+                        'Désactivé' => false,
+                    ],
+                    'expanded' => true,
+                    'multiple' => false,
+                    'label' => 'Statut',
+                ]);
+
+        } elseif ($isEdit) {
+
+            $builder->add('site', TextType::class, [
+                'label' => 'Site',
+                'disabled' => true,
+                'mapped' => false,
+                'data' => $builder->getData()->getSite() ? $builder->getData()->getSite()->getName() : 'Non attribué',
+            ]);
         }
-
     }
-
 
     public function configureOptions(OptionsResolver $resolver): void
     {
@@ -104,7 +119,7 @@ class RegistrationFormType extends AbstractType
             'is_edit' => false,
             'csrf_protection' => true,
             'csrf_field_name' => '_token',
-            'csrf_token_id'   => 'event_item',
+            'csrf_token_id' => 'registration_item',
         ]);
     }
 }
