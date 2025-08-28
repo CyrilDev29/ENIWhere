@@ -35,6 +35,7 @@
                 <th>État</th>
                 <th>Inscrits</th>
                 <th>Organisateur</th>
+                <th>Detail</th>
             </tr>
             </thead>
             <tbody>
@@ -46,7 +47,16 @@
                     <td>{{ e.place ? e.place.name : '-' }}</td>
                     <td>{{ e.state ? e.state.label : '-' }}</td>
                     <td>{{ e.registrations|length }}/{{ e.maxParticipant ?? '-' }}</td>
-                    <td>{{ e.organizer ? e.organizer.username : '-' }}</td>
+                    <td>
+                        <a href="e.organizer ? '/users/' + e.organizer.id : '#'" >
+                            {{ e.organizer ? e.organizer.username : '-' }}
+                        </a>
+                    </td>
+                    <td>
+                        <a href="{{ path('event_detail', {id: e.id}) }}" > Detail</a>
+                    </td>
+
+
                 </tr>
             {% endfor %}
             </tbody>
