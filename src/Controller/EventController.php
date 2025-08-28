@@ -8,6 +8,7 @@ use App\Entity\Place;
 use App\Entity\Registration;
 use App\Form\EventType;
 use App\Form\InscriptionType;
+use App\Helper\EventStateService;
 use App\Helper\NominatimService;
 use App\Repository\EventRepository;
 use App\Repository\StateRepository;
@@ -17,6 +18,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+
 
 final class EventController extends AbstractController
 {
@@ -51,14 +53,16 @@ final class EventController extends AbstractController
     ): Response
     {
         $event = new Event();
+        $event->setStatus('draft');
         $form = $this->createForm(EventType::class, $event);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
             $event->setOrganizer($this->getUser());
-            $stateCreee = $stateRepository->findOneBy(['label' => 'CREATED']); // au moment de creartion created simple
+            $stateCreee = $stateRepository->findOneBy(['label' => 'CREATED']); //  creartion simple
             $event->setState($stateCreee);
             $event->setCreatedDate(new \DateTime());
+
 
             // ----------------Récupérer les données du formulaire---------------------
             $placeName = (string)$form->get('place')->getData();
@@ -124,6 +128,65 @@ final class EventController extends AbstractController
         $results = $this->nominatimService->search($query);
 
         return new JsonResponse($results);
+    }
+
+
+
+
+    #[Route('/events/{id}/publish', name: 'event_publish', methods: ['POST'])]
+    public function publish(Event $event, EventStateService $svc): Response
+    {
+        if ($svc->apply($event, 'publish')) {
+            $this->addFlash('success', 'Événement publié ✅');
+        } else {
+            $this->addFlash('warning', "Impossible de publier depuis l'état {$event->getStatus()}.");
+        }
+        return $this->redirectToRoute('event_index');
+    }
+
+// Ouvrir inscriptions
+    #[Route('/events/{id}/open', name: 'event_open_regs', methods: ['POST'])]
+    public function openRegs(Event $event, EventStateService $svc): Response
+    {
+        $ok = $svc->apply($event, 'open_regs');
+        $this->addFlash($ok ? 'success' : 'warning', $ok ? 'Inscriptions ouvertes.' : "Transition impossible.");
+        return $this->redirectToRoute('event_index');
+    }
+
+// Fermer inscriptions
+    #[Route('/events/{id}/close', name: 'event_close_regs', methods: ['POST'])]
+    public function closeRegs(Event $event, EventStateService $svc): Response
+    {
+        $ok = $svc->apply($event, 'close_regs');
+        $this->addFlash($ok ? 'success' : 'warning', $ok ? 'Inscriptions fermées.' : "Transition impossible.");
+        return $this->redirectToRoute('event_index');
+    }
+
+// Démarrer l'enregistrement
+    #[Route('/events/{id}/start', name: 'event_start', methods: ['POST'])]
+    public function start(Event $event, EventStateService $svc): Response
+    {
+        $ok = $svc->apply($event, 'start');
+        $this->addFlash($ok ? 'success' : 'warning', $ok ? 'Événement démarré.' : "Transition impossible.");
+        return $this->redirectToRoute('event_index');
+    }
+
+// Terminer
+    #[Route('/events/{id}/finish', name: 'event_finish', methods: ['POST'])]
+    public function finish(Event $event, EventStateService $svc): Response
+    {
+        $ok = $svc->apply($event, 'finish');
+        $this->addFlash($ok ? 'success' : 'warning', $ok ? 'Événement terminé.' : "Transition impossible.");
+        return $this->redirectToRoute('event_index');
+    }
+
+// Annuler : (plusieurs états)
+    #[Route('/events/{id}/cancel', name: 'event_cancel', methods: ['POST'])]
+    public function cancel(Event $event, EventStateService $svc): Response
+    {
+        $ok = $svc->apply($event, 'cancel');
+        $this->addFlash($ok ? 'success' : 'warning', $ok ? 'Événement annulé.' : "Transition impossible.");
+        return $this->redirectToRoute('event_index');
     }
 
 

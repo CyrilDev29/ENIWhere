@@ -50,7 +50,11 @@
                     <td>{{ e.registrations|length }}/{{ e.maxParticipant ?? '-' }}</td>
                     <td>
                         {%  if e.organizer %}
+
                             <a href="{{ path('admin_user_edit', {id: e.organizer.id}) }}">{{ e.organizer.username }}</a>
+
+                        <a href="{{ path('admin_user_edit', {id: e.organizer.id}) }}">{{ e.organizer.username }}</a>
+
                         {% else %}-{% endif %}
 
                     </td>

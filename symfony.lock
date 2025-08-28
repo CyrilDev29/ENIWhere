@@ -352,6 +352,7 @@
             "./config/packages/messenger.yaml"
         ]
     },
+
     "symfony/webpack-encore-bundle": {
         "version": "2.3",
         "recipe": {
@@ -366,6 +367,18 @@
             "./config/packages/webpack_encore.yaml",
             "./package.json",
             "./webpack.config.js"
+
+    "symfony/workflow": {
+        "version": "7.3",
+        "recipe": {
+            "repo": "github.com/symfony/recipes",
+            "branch": "main",
+            "version": "3.3",
+            "ref": "3b2f8ca32a07fcb00f899649053943fa3d8bbfb6"
+        },
+        "files": [
+            "./config/packages/workflow.yaml"
+
         ]
     },
     "symfonycasts/reset-password-bundle": {

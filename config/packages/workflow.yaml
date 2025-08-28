@@ -1,0 +1,38 @@
+# config/packages/workflow.yaml
+framework:
+    workflows:
+        event:
+            type: state_machine
+            supports:
+                - App\Entity\Event
+            initial_marking: draft
+            marking_store:
+                type: method
+                property: status
+            places:
+                - draft
+                - published
+                - registration_open
+                - registration_closed
+                - ongoing
+                - finished
+                - canceled
+            transitions:
+                publish:
+                    from: draft
+                    to:   published
+                open_regs:
+                    from: published
+                    to:   registration_open
+                close_regs:
+                    from: registration_open
+                    to:   registration_closed
+                start:
+                    from: registration_closed
+                    to:   ongoing
+                finish:
+                    from: ongoing
+                    to:   finished
+                cancel:
+                    from: [draft, published, registration_open, registration_closed, ongoing]
+                    to:   canceled
