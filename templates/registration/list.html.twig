@@ -6,10 +6,21 @@
     <div class="container mt-5">
         <h1>Liste des utilisateurs</h1>
 
+        {# Affichage des messages flash #}
+        {% for label, messages in app.flashes %}
+            {% for message in messages %}
+                <div class="alert alert-{{ label == 'success' ? 'success' : 'danger' }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        {% endfor %}
+
         <table class="table table-bordered table-hover">
             <thead>
             <tr>
                 <th>ID</th>
+                <th>Photo</th>
                 <th>Nom</th>
                 <th>Prénom</th>
                 <th>Email</th>
@@ -22,19 +33,29 @@
             {% for user in users %}
                 <tr>
                     <td>{{ user.id }}</td>
+                    <td>
+                        {% if user.photoName %}
+                            <img src="{{ asset('uploads/photos/' ~ user.photoName) }}"
+                                 alt="Photo de {{ user.firstName }}"
+                                 style="width: 60px; height: 45px; object-fit: cover; border: 1px solid #ddd;">
+                        {% else %}
+                            <span class="text-muted">Aucune photo</span>
+                        {% endif %}
+                    </td>
                     <td>{{ user.lastName }}</td>
                     <td>{{ user.firstName }}</td>
                     <td>{{ user.email }}</td>
                     <td>{{ user.username }}</td>
                     <td>{{ user.roles|join(', ') }}</td>
                     <td>
+                        <a href="{{ path('user_profile_show', {'id': user.id}) }}" class="btn btn-sm btn-info me-1">Voir</a>
                         <a href="{{ path('admin_user_edit', {'id': user.id}) }}" class="btn btn-sm btn-primary">Modifier</a>
-{#  <a href="{{ path('admin_user_delete', {'id': user.id}) }}" class="btn btn-sm btn-danger">Supprimer</a>#}
+                        {#  <a href="{{ path('admin_user_delete', {'id': user.id}) }}" class="btn btn-sm btn-danger">Supprimer</a>#}
                     </td>
                 </tr>
             {% else %}
                 <tr>
-                    <td colspan="7" class="text-center">Aucun utilisateur trouvé.</td>
+                    <td colspan="8" class="text-center">Aucun utilisateur trouvé.</td>
                 </tr>
             {% endfor %}
             </tbody>

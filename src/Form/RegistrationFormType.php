@@ -16,6 +16,8 @@ use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Regex;
 use Symfony\Component\Validator\Constraints\Email;
+use Symfony\Component\Form\Extension\Core\Type\FileType;
+use Symfony\Component\Validator\Constraints\File;
 
 class RegistrationFormType extends AbstractType
 {
@@ -55,6 +57,22 @@ class RegistrationFormType extends AbstractType
                         'message' => "Seules les adresses @campus-eni.fr sont autorisées."
                     ])
                 ]
+            ])
+            ->add('photo', FileType::class, [
+                'label' => 'Photo de profil',
+                'mapped' => false,
+                'required' => false,
+                'constraints' => [
+                    new File([
+                        'maxSize' => '2M',
+                        'mimeTypes' => [
+                            'image/jpeg',
+                            'image/png',
+                            'image/webp'
+                        ],
+                        'mimeTypesMessage' => 'Veuillez télécharger une image valide (JPG, PNG ou WebP)',
+                    ])
+                ],
             ])
             ->add('plainPassword', PasswordType::class, [
                 'mapped' => false,
