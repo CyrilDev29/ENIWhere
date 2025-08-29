@@ -48,8 +48,6 @@ class EventRepository extends ServiceEntityRepository
             ->addSelect('r')
             ->leftJoin('e.site', 's')
             ->addSelect('s')
-            ->leftJoin('e.state', 'st')
-            ->addSelect('st')
             ->leftJoin('e.place', 'p')
             ->addSelect('p')
             ->leftJoin('e.organizer', 'o')

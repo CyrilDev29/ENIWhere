@@ -1,0 +1,40 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mes événements{% endblock %}
+
+{% block body %}
+    <h1>Mes événements</h1>
+
+    {% if events is empty %}
+        <p>Vous n'avez aucun événement en tant qu'organisateur.</p>
+    {% else %}
+        <table border="1" cellpadding="5">
+            <thead>
+            <tr>
+                <th>Nom</th>
+                <th>Date/heure</th>
+                <th>Site</th>
+                <th>Lieu</th>
+                <th>État</th>
+                <th>Inscrits</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for e in events %}
+                <tr>
+                    <td>{{ e.name }}</td>
+                    <td>{{ e.startDateTime ? e.startDateTime|date('d/m/Y H:i') : '-' }}</td>
+                    <td>{{ e.site ? e.site.name : '-' }}</td>
+                    <td>{{ e.place ? e.place.name : '-' }}</td>
+                    <td>{{ e.state }}</td>
+                    <td>{{ e.registrations|length }}/{{ e.maxParticipant ?? '-' }}</td>
+                    <td>
+                        <a href="{{ path('event_manage', {id: e.id}) }}" class="btn btn-sm btn-primary">Gérer</a>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
+{% endblock %}

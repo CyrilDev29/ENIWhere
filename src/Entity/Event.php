@@ -52,9 +52,9 @@ class Event
     private ?User $organizer = null;
 
 
-    #[ORM\ManyToOne(inversedBy: 'events')]
-    #[ORM\JoinColumn(nullable: true)]
-    private ?State $state = null;
+    //#[ORM\ManyToOne(inversedBy: 'events')]
+    //#[ORM\JoinColumn(nullable: true)]
+    //private ?State $state = null;
 
     #[ORM\ManyToOne(inversedBy: 'events')]
     #[ORM\JoinColumn(nullable: true)]
@@ -70,7 +70,8 @@ class Event
     #[ORM\JoinColumn(nullable: true)]
     private ?Site $site = null;
 
-
+    #[ORM\Column(length: 20)]
+    private ?string $state = null;
 
     public function __construct()
     {
@@ -202,17 +203,7 @@ class Event
         return $this;
     }
 
-    public function getState(): ?State
-    {
-        return $this->state;
-    }
 
-    public function setState(?State $state): static
-    {
-        $this->state = $state;
-
-        return $this;
-    }
 
     public function getPlace(): ?Place
     {
@@ -292,5 +283,25 @@ class Event
         return $this->registrationDeadline;
     }
 
+    public function getState(): ?string
+    {
+        return $this->state;
+    }
 
+    public function setState(string $state): static
+    {
+        $this->state = $state;
+        return $this;
+    }
+
+    // Pour le workflow (getter/setter identiques)
+    public function getWorkflowState(): ?string
+    {
+        return $this->state;
+    }
+
+    public function setWorkflowState(string $state): void
+    {
+        $this->state = $state;
+    }
 }
