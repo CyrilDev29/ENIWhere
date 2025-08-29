@@ -139,7 +139,7 @@ final class EventController extends AbstractController
         if ($svc->apply($event, 'publish')) {
             $this->addFlash('success', 'Événement publié ✅');
         } else {
-            $this->addFlash('warning', "Impossible de publier depuis l'état {$event->getStatus()}.");
+            $this->addFlash('warning', "Impossible de publier depuis l'état {$event->getState()->getLabel()}.");
         }
         return $this->redirectToRoute('event_index');
     }

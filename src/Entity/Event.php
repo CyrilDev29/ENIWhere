@@ -70,19 +70,7 @@ class Event
     #[ORM\JoinColumn(nullable: true)]
     private ?Site $site = null;
 
-    #[ORM\Column(length: 30)]
-    private ?string $status = 'draft';
 
-    public function getStatus(): ?string
-    {
-        return $this->status;
-    }
-
-    public function setStatus(string $status):self
-    {
-        $this->status = $status;
-        return $this;
-    }
 
     public function __construct()
     {

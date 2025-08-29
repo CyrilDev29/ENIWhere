@@ -20,7 +20,7 @@ class EventStateService
         if (!$wf->can($event, $transition)) {
             $this->logger->warning('Transition refusée', [
                 'event' => $event->getId(),
-                'from' => $event->getStatus(),
+                'state' => $event->getState()->getLabel(),
                 'try' => $transition,
             ]);
             return false;
@@ -36,7 +36,7 @@ class EventStateService
             'finished' => 'FINISHED',
             'canceled' => 'CANCELED',
         ];
-        $label = $map[$event->getStatus()] ?? null;
+        $label = $map[$event->getState()->getLabel()] ?? null;
         if ($label) {
             $state = $this->em->getRepository(\App\Entity\State::class)->findOneBy(['label' => $label]);
             if ($state) {

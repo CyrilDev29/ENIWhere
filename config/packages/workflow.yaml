@@ -8,7 +8,7 @@ framework:
             initial_marking: draft
             marking_store:
                 type: method
-                property: status
+                property: state
             places:
                 - draft
                 - published
