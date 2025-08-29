@@ -4,8 +4,23 @@
 
 {% block body %}
 
-
     <div>
+        {% if user.photoName %}
+            <div class="mb-4 text-center">
+                <img src="{{ asset('uploads/photos/' ~ user.photoName) }}"
+                     alt="Photo de {{ user.firstName }} {{ user.lastName }}"
+                     style="width: 200px; height: 150px; object-fit: cover; border: 2px solid #ddd; border-radius: 5px;">
+                <h5 class="mt-2">{{ user.firstName }} {{ user.lastName }}</h5>
+            </div>
+        {% else %}
+            <div class="mb-4 text-center">
+                <div style="width: 200px; height: 150px; background-color: #f8f9fa; border: 2px solid #ddd; border-radius: 5px; display: flex; align-items: center; justify-content: center; margin: 0 auto;">
+                    <span class="text-muted">Aucune photo</span>
+                </div>
+                <h5 class="mt-2">{{ user.firstName }} {{ user.lastName }}</h5>
+            </div>
+        {% endif %}
+
         <p><strong>Email :</strong> {{ user.email }}</p>
         <p><strong>Pseudo :</strong> {{ user.username }}</p>
         <p><strong>Téléphone :</strong> {{ user.phoneNumber ?: 'Non renseigné' }}</p>

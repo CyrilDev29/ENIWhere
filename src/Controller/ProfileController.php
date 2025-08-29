@@ -58,4 +58,11 @@ final class ProfileController extends AbstractController
             'user' => $user,
         ]);
     }
+    #[Route('/user/{id}', name: 'user_profile_show', requirements: ['id' => '\d+'])]
+    public function showUser(User $user): Response
+    {
+        return $this->render('profile/show.html.twig', [
+            'user' => $user,
+        ]);
+    }
 }

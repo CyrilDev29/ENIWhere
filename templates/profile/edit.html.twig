@@ -61,6 +61,17 @@
             </div>
         {% endif %}
 
+        {% if form.vars.data.photoName %}
+            <div class="col-md-6 mb-3">
+                <label class="form-label">Photo actuelle :</label>
+                <div>
+                    <img src="{{ asset('uploads/photos/' ~ form.vars.data.photoName) }}"
+                         alt="Photo actuelle"
+                         style="width: 120px; height: 90px; object-fit: cover; border: 1px solid #ddd;">
+                </div>
+            </div>
+        {% endif %}
+
         {{ form_rest(form) }}
 
         <div class="col-12 mt-3 d-flex">
