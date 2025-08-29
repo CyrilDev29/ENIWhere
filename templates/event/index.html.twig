@@ -46,7 +46,7 @@
                     <td>{{ e.startDateTime ? e.startDateTime|date('d/m/Y H:i') : '-' }}</td>
                     <td>{{ e.site ? e.site.name : '-' }}</td>
                     <td>{{ e.place ? e.place.name : '-' }}</td>
-                    <td>{{ (e.state ? e.state.label : '-') }}</td>
+                    <td>{{ e.state }} </td>
                     <td>{{ e.registrations|length }}/{{ e.maxParticipant ?? '-' }}</td>
                     <td>
                         {%  if e.organizer %}
@@ -61,43 +61,7 @@
                     <td>
                         <a href="{{ path('event_detail', {id: e.id}) }}" > Detail</a>
                     </td>
-                    <td>
-                        {# Publier: draft -> published #}
-                        <form method="post" action="{{ path('event_publish', {id: e.id}) }}" style="display:inline">
-                            <input type="hidden" name="_token" value="{{ csrf_token('publish_event_' ~ e.id) }}">
-                            <button class="btn btn-sm btn-primary" {% if e.state  is null or e.state.label != 'draft' %}disabled{% endif %}>Publier</button>
-                        </form>
 
-                        {# Ouvrir inscriptions: published -> registration_open #}
-                        <form method="post" action="{{ path('event_open_regs', {id: e.id}) }}" style="display:inline">
-                            <input type="hidden" name="_token" value="{{ csrf_token('open_event_' ~ e.id) }}">
-                            <button class="btn btn-sm btn-secondary" {% if e.state  is null or e.state.label != 'published' %}disabled{% endif %}>Ouvrir</button>
-                        </form>
-
-                        {# Fermer inscriptions: registration_open -> registration_closed #}
-                        <form method="post" action="{{ path('event_close_regs', {id: e.id}) }}" style="display:inline">
-                            <input type="hidden" name="_token" value="{{ csrf_token('close_event_' ~ e.id) }}">
-                            <button class="btn btn-sm btn-warning" {% if e.state  is null or e.state.label != 'registration_open' %}disabled{% endif %}>Fermer</button>
-                        </form>
-
-                        {# Démarrer: registration_closed -> ongoing #}
-                        <form method="post" action="{{ path('event_start', {id: e.id}) }}" style="display:inline">
-                            <input type="hidden" name="_token" value="{{ csrf_token('start_event_' ~ e.id) }}">
-                            <button class="btn btn-sm btn-info" {% if e.state  is null or e.state.label != 'registration_closed' %}disabled{% endif %}>Démarrer</button>
-                        </form>
-
-                        {# Terminer: ongoing -> finished #}
-                        <form method="post" action="{{ path('event_finish', {id: e.id}) }}" style="display:inline">
-                            <input type="hidden" name="_token" value="{{ csrf_token('finish_event_' ~ e.id) }}">
-                            <button class="btn btn-sm btn-success" {%  if e.state  is null or e.state.label  != 'ongoing' %}disabled{% endif %}>Terminer</button>
-                        </form>
-
-                        {# Annuler: (tous sauf finished/canceled) -> canceled #}
-                        <form method="post" action="{{ path('event_cancel', {id: e.id}) }}" style="display:inline">
-                            <input type="hidden" name="_token" value="{{ csrf_token('cancel_event_' ~ e.id) }}">
-                            <button class="btn btn-sm btn-danger" {%  if e.state  is null or e.state.label  in ['finished','canceled'] %}disabled{% endif %}>Annuler</button>
-                        </form>
-                    </td>
 
                 </tr>
             {% endfor %}

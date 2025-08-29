@@ -1,0 +1,51 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Gérer l'événement{% endblock %}
+
+{% block body %}
+    <h1>Gérer l'événement : {{ event.name }}</h1>
+    <p>État actuel : <strong>{{ event.state }}</strong></p>
+
+    <div class="actions">
+
+        {# Publier: draft -> published #}
+        <form method="post" action="{{ path('event_publish', {id: event.id}) }}" style="display:inline">
+            <input type="hidden" name="_token" value="{{ csrf_token('publish_event_' ~ event.id) }}">
+            <button class="btn btn-sm btn-primary" {% if event.state != 'draft' %}disabled{% endif %}>Publier</button>
+        </form>
+
+        {# Ouvrir inscriptions: published -> registration_open #}
+        <form method="post" action="{{ path('event_open_regs', {id: event.id}) }}" style="display:inline">
+            <input type="hidden" name="_token" value="{{ csrf_token('open_event_' ~ event.id) }}">
+            <button class="btn btn-sm btn-secondary" {% if event.state != 'PUBLISHED' %}disabled{% endif %}>Ouvrir inscriptions</button>
+        </form>
+
+        {# Fermer inscriptions: registration_open -> registration_closed #}
+        <form method="post" action="{{ path('event_close_regs', {id: event.id}) }}" style="display:inline">
+            <input type="hidden" name="_token" value="{{ csrf_token('close_event_' ~ event.id) }}">
+            <button class="btn btn-sm btn-warning" {% if event.state != 'OPEN' %}disabled{% endif %}>Fermer inscriptions</button>
+        </form>
+
+        {# Démarrer: registration_closed -> ongoing #}
+        <form method="post" action="{{ path('event_start', {id: event.id}) }}" style="display:inline">
+            <input type="hidden" name="_token" value="{{ csrf_token('start_event_' ~ event.id) }}">
+            <button class="btn btn-sm btn-info" {% if event.state != 'CLOSED' %}disabled{% endif %}>Démarrer</button>
+        </form>
+
+        {# Terminer: ongoing -> finished #}
+        <form method="post" action="{{ path('event_finish', {id: event.id}) }}" style="display:inline">
+            <input type="hidden" name="_token" value="{{ csrf_token('finish_event_' ~ event.id) }}">
+            <button class="btn btn-sm btn-success" {% if event.state != 'ONGOING' %}disabled{% endif %}>Terminer</button>
+        </form>
+
+        {# Annuler: (tous sauf finished/canceled) -> canceled #}
+        <form method="post" action="{{ path('event_cancel', {id: event.id}) }}" style="display:inline">
+            <input type="hidden" name="_token" value="{{ csrf_token('cancel_event_' ~ event.id) }}">
+            <button class="btn btn-sm btn-danger" {% if event.state in ['FINISHED','CANCELED'] %}disabled{% endif %}>Annuler</button>
+        </form>
+
+    </div>
+
+    <a href="{{ path('event_index') }}">Retour à la liste des événements</a>
+
+{% endblock %}

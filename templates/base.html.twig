@@ -23,17 +23,25 @@
                         </a>
                     </li>
 
-
                     <li class="nav-item">
                         <a class="nav-link" href="{{ path('event_new') }}">
                             New Event
                         </a>
                     </li>
+
+                    {# Lien vers Mes événements visible uniquement si connecté #}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ path('my_events') }}">
+                            Mes événements
+                        </a>
+                    </li>
+
                     {% if is_granted('ROLE_ADMIN') %}
                         <li class="nav-item">
                             <a class="nav-link" href="{{ path('admin_user_create') }}">Créer un utilisateur</a>
                         </li>
                     {% endif %}
+
                     <li class="nav-item">
                         <a class="nav-link" href="{{ path('app_logout') }}">Logout</a>
                     </li>

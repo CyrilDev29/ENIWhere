@@ -1,38 +1,41 @@
-# config/packages/workflow.yaml
 framework:
     workflows:
         event:
             type: state_machine
             supports:
                 - App\Entity\Event
-            initial_marking: draft
+            initial_marking: CREATED
             marking_store:
                 type: method
-                property: state
+                property: workflowState
             places:
-                - draft
-                - published
-                - registration_open
-                - registration_closed
-                - ongoing
-                - finished
-                - canceled
+                - CREATED
+                - PUBLISHED
+                - OPEN
+                - CLOSED
+                - ONGOING
+                - FINISHED
+                - CANCELED
+                - ARCHIVED
             transitions:
                 publish:
-                    from: draft
-                    to:   published
+                    from: CREATED
+                    to: PUBLISHED
                 open_regs:
-                    from: published
-                    to:   registration_open
+                    from: PUBLISHED
+                    to: OPEN
                 close_regs:
-                    from: registration_open
-                    to:   registration_closed
+                    from: OPEN
+                    to: CLOSED
                 start:
-                    from: registration_closed
-                    to:   ongoing
+                    from: CLOSED
+                    to: ONGOING
                 finish:
-                    from: ongoing
-                    to:   finished
+                    from: ONGOING
+                    to: FINISHED
                 cancel:
-                    from: [draft, published, registration_open, registration_closed, ongoing]
-                    to:   canceled
+                    from: [CREATED, PUBLISHED, OPEN, CLOSED, ONGOING]
+                    to: CANCELED
+                archive:
+                    from: [FINISHED, CANCELED]
+                    to: ARCHIVED
