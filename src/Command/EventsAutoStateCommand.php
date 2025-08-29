@@ -30,7 +30,7 @@ class EventsAutoStateCommand extends Command
         $updated = 0;
 
         foreach ($events as $event) {
-            $status = $event->getStatus();
+            $status = $event->getState()->getLabel();
             if (!$status) { continue; }
 
             // --- Ouverture auto (si publié et avant deadline) ---
@@ -43,7 +43,7 @@ class EventsAutoStateCommand extends Command
                 && (!$closeAt || $now < DateTimeImmutable::createFromMutable($closeAt))
             ) {
                 if ($this->svc->apply($event, 'open_regs')) {
-                    $updated++; $status = $event->getStatus();
+                    $updated++; $status = $event->getState()->getLabel();
                 }
             }
 
@@ -53,7 +53,7 @@ class EventsAutoStateCommand extends Command
                 && $now >= DateTimeImmutable::createFromMutable($closeAt)
             ) {
                 if ($this->svc->apply($event, 'close_regs')) {
-                    $updated++; $status = $event->getStatus();
+                    $updated++; $status = $event->getState()->getLabel();
                 }
             }
 
@@ -64,7 +64,7 @@ class EventsAutoStateCommand extends Command
                 && $now >= DateTimeImmutable::createFromMutable($startAt)
             ) {
                 if ($this->svc->apply($event, 'start')) {
-                    $updated++; $status = $event->getStatus();
+                    $updated++; $status = $event->getState()->getLabel();
                 }
             }
 
