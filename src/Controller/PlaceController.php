@@ -23,7 +23,7 @@ final class PlaceController extends AbstractController
             'places' => $repo->findBy([], ['name' => 'ASC']),
         ]);
     }
-    #[Route('places/new', name: 'new', methods: ['GET', 'POST'])]
+    #[Route('places/new', name: 'new_place', methods: ['GET', 'POST'])]
     public function new(Request $request, EntityManagerInterface $em): Response
     {
         $place = new City();

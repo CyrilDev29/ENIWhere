@@ -23,7 +23,7 @@ final class ProfileController extends AbstractController
     {
         $user = $this->getUser();
 
-        $form = $this->createForm(ProfileFormType::class, $user);
+        $form = $this->createForm(RegistrationFormType::class, $user);
 
         $form->handleRequest($request);
 

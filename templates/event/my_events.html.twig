@@ -3,38 +3,44 @@
 {% block title %}Mes événements{% endblock %}
 
 {% block body %}
-    <h1>Mes événements</h1>
+    <div class="container mt-4">
+        <h1 class="mb-4 text-center text-primary">Mes événements</h1>
 
-    {% if events is empty %}
-        <p>Vous n'avez aucun événement en tant qu'organisateur.</p>
-    {% else %}
-        <table border="1" cellpadding="5">
-            <thead>
-            <tr>
-                <th>Nom</th>
-                <th>Date/heure</th>
-                <th>Site</th>
-                <th>Lieu</th>
-                <th>État</th>
-                <th>Inscrits</th>
-                <th>Actions</th>
-            </tr>
-            </thead>
-            <tbody>
-            {% for e in events %}
-                <tr>
-                    <td>{{ e.name }}</td>
-                    <td>{{ e.startDateTime ? e.startDateTime|date('d/m/Y H:i') : '-' }}</td>
-                    <td>{{ e.site ? e.site.name : '-' }}</td>
-                    <td>{{ e.place ? e.place.name : '-' }}</td>
-                    <td>{{ e.state }}</td>
-                    <td>{{ e.registrations|length }}/{{ e.maxParticipant ?? '-' }}</td>
-                    <td>
-                        <a href="{{ path('event_manage', {id: e.id}) }}" class="btn btn-sm btn-primary">Gérer</a>
-                    </td>
-                </tr>
-            {% endfor %}
-            </tbody>
-        </table>
-    {% endif %}
+        {% if events is empty %}
+            <div class="alert alert-info text-center">
+                Vous n'avez aucun événement en tant qu'organisateur.
+            </div>
+        {% else %}
+            <div class="row g-4">
+                {% for e in events %}
+                    <div class="col-md-6 col-lg-4">
+                        <div class="card shadow-sm h-100">
+                            <div class="card-body d-flex flex-column">
+                                <h5 class="card-title">{{ e.name }}</h5>
+                                <p class="card-text mb-1"><strong>Date/heure:</strong> {{ e.startDateTime ? e.startDateTime|date('d/m/Y H:i') : '-' }}</p>
+                                <p class="card-text mb-1"><strong>Site:</strong> {{ e.site ? e.site.name : '-' }}</p>
+                                <p class="card-text mb-1"><strong>Lieu:</strong> {{ e.place ? e.place.name : '-' }}</p>
+                                <p class="card-text mb-1">
+                                    <strong>État:</strong>
+                                    <span class="badge
+                                    {% if e.state == 'Ouvert' %} bg-success
+                                    {% elseif e.state == 'Clôturé' %} bg-danger
+                                    {% else %} bg-secondary
+                                    {% endif %}">
+                                    {{ e.state }}
+                                </span>
+                                </p>
+                                <p class="card-text mb-3"><strong>Inscrits:</strong> {{ e.registrations|length }}/{{ e.maxParticipant ?? '-' }}</p>
+                                <div class="mt-auto">
+                                    <a href="{{ path('event_manage', {id: e.id}) }}" class="btn btn-primary w-100">
+                                        <i class="bi bi-pencil-square"></i> Gérer
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    </div>
 {% endblock %}
