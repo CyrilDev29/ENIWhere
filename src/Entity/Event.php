@@ -48,7 +48,7 @@ class Event
     private ?\DateTime $updatedAt = null;
 
     #[ORM\ManyToOne(inversedBy: 'organizedEvents')]
-    #[ORM\JoinColumn(nullable: true)]
+    #[ORM\JoinColumn(nullable: true, onDelete: "SET NULL")]
     private ?User $organizer = null;
 
 
