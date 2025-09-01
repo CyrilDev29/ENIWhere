@@ -50,11 +50,74 @@
     </form>
 
     {# Annuler: (tous sauf finished/canceled) -> canceled #}
-    <form method="post" action="{{ path('event_cancel', {id: event.id}) }}" style="display:inline">
+    <form id="cancel-form-{{ event.id }}" method="post" action="{{ path('event_cancel', {id: event.id}) }}" style="display:inline">
         <input type="hidden" name="_token" value="{{ csrf_token('cancel_event_' ~ event.id) }}">
-        <button class="btn btn-sm btn-danger" {% if event.state in ['FINISHED','CANCELED'] %}disabled{% endif %}>Annuler</button>
+        <input type="hidden" name="reason" value="">
+        {% set m = event.workflowstate|upper %}
+        <button type="button"
+                class="btn btn-sm btn-danger"
+                data-bs-toggle="modal"
+                data-bs-target="#cancelModal-{{ event.id }}"
+                {% if m in ['FINISHED','CANCELED'] %}disabled{% endif %}>
+            Annuler
+        </button>
+        {# Modal Bootstrap #}
+        <div class="modal fade" id="cancelModal-{{ event.id }}" tabindex="-1" aria-labelledby="cancelModalLabel-{{ event.id }}" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <form method="post" action="{{ path('event_cancel', {id: event.id}) }}">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="cancelModalLabel-{{ event.id }}">Motif d’annulation</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+                        </div>
+                        {% set m = event.workflowstate|upper %}
+                        {% if m == 'CANCELED' and event.cancellationReason %}
+                            <p class="mt-2"><strong>Motif d’annulation :</strong><br>{{ event.cancellationReason }}</p>
+                        {% endif %}
+
+
+                        <div class="modal-body">
+                            <input type="hidden" name="_token" value="{{ csrf_token('cancel_event_' ~ event.id) }}">
+                            <div class="mb-3">
+                                <label for="cancel-reason-{{ event.id }}" class="form-label">Expliquez pourquoi vous annulez :</label>
+                                <textarea id="cancel-reason-{{ event.id }}"
+                                          name="reason"
+                                          class="form-control"
+                                          rows="4"
+                                          required
+                                          placeholder="Ex. : météo défavorable, manque de participants, etc."></textarea>
+                                <div class="form-text">Ce motif sera visible sur la fiche de l’événement.</div>
+                            </div>
+                        </div>
+
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Retour</button>
+                            <button type="submit" class="btn btn-danger">Confirmer l’annulation</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+
+
+
     </form>
 
+    <script>
+        function askCancelReason(id) {
+            const reason = prompt("Motif d'annulation :");
+            if (reason === null) return;            // annulé par l'utilisateur
+            const trimmed = String(reason).trim();
+            if (!trimmed) {
+                alert("Merci de saisir un motif.");
+                return;
+            }
+            const form = document.getElementById('cancel-form-' + id);
+            form.querySelector('input[name=\"reason\"]').value = trimmed;
+            form.submit();
+        }
+    </script>
     </div>
 
     {# ====== Carte détails ====== #}

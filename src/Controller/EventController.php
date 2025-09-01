@@ -16,6 +16,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[Route('/events')]
 final class EventController extends AbstractController
@@ -185,8 +186,16 @@ final class EventController extends AbstractController
     }
 
     #[Route('/{id}/cancel', name: 'event_cancel', methods: ['POST'])]
-    public function cancel(Event $event, EventStateService $svc): Response
+    public function cancel(Event $event, EventStateService $svc,Request $request): Response
     {
+        $reason = trim((string) $request->get('reason'));
+        if($reason === ''){
+            $this->addFlash('warning', 'Merci de saisir un motif d`annulation.');
+            return $this->redirectToRoute('event_manage', ['id' => $event->getId()]);
+        }
+
+        $event->setCancellationReason($reason);
+
         $ok = $svc->apply($event, 'cancel');
         $this->addFlash($ok ? 'success' : 'warning', $ok ? 'Événement annulé.' : "Transition impossible depuis « {$event->getState()} ».");
         return $this->redirectToRoute('event_manage', ['id' => $event->getId()]);
@@ -291,11 +300,32 @@ final class EventController extends AbstractController
             return $this->redirectToRoute('event_manage', ['id' => $event->getId()]);
         }
 
-        // 👉 Rendre la même page "manage" avec le formulaire
+
         return $this->render('event/manage.html.twig', [
             'event' => $event,
             'form'  => $form->createView(),
             'edit_mode' => true,
         ]);
     }
+
+    #[Route('/adminView', name: 'event_admin_index')]
+    #[IsGranted('ROLE_ADMIN')]
+    public function adminIndex(Request $request, EventRepository $repo): Response
+    {
+        // Récup des filtres GET
+        $status = strtoupper((string)$request->query->get('status', 'ALL'));
+        $q      = trim((string)$request->query->get('q', ''));
+
+        // Données
+        $stats  = $repo->countByWorkflowstate();
+        $events = $repo->findForAdmin($status, $q, 500);
+
+        return $this->render('event/admin.html.twig', [
+            'status' => $status,
+            'q'      => $q,
+            'stats'  => $stats,
+            'events' => $events,
+        ]);
+    }
+
 }
