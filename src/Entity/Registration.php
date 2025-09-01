@@ -28,6 +28,10 @@ class Registration
     private ?Event $event = null;
 
 
+    #[ORM\Column(length: 50)]
+    private string $workflowState = 'REGISTERED';
+
+
     public function __construct()
     {
         $this->registrationDate = new \DateTime();
@@ -83,6 +87,17 @@ class Registration
     {
         $this->event = $event;
 
+        return $this;
+    }
+
+    public function getWorkflowState(): string
+    {
+        return $this->workflowState;
+    }
+
+    public function setWorkflowState(string $workflowState): static
+    {
+        $this->workflowState = $workflowState;
         return $this;
     }
 }

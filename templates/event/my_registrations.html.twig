@@ -1,0 +1,63 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mes inscriptions{% endblock %}
+
+{% block body %}
+    <div class="container my-5">
+        <h1 class="mb-4 text-primary"><i class="bi bi-journal-check"></i> Mes inscriptions</h1>
+
+        {# Flash messages #}
+        {% for label, messages in app.flashes %}
+            {% for message in messages %}
+                <div class="alert alert-{{ label }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        {% endfor %}
+
+        {% if registrations|length > 0 %}
+            <div class="row g-4">
+                {% for registration in registrations %}
+                    <div class="col-md-6 col-lg-4">
+                        <div class="card shadow-sm h-100 border-0">
+                            <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                                <span class="fw-bold">{{ registration.event ? registration.event.name : 'Inconnu' }}</span>
+                                {% if registration.workflowState == 'REGISTERED' %}
+                                    <span class="badge bg-success"><i class="bi bi-check-circle"></i> Inscrit</span>
+                                {% elseif registration.workflowState == 'NOTIFIED' %}
+                                    <span class="badge bg-info text-dark"><i class="bi bi-bell-fill"></i> Notifié</span>
+                                {% elseif registration.workflowState == 'CANCELED' %}
+                                    <span class="badge bg-secondary"><i class="bi bi-x-circle"></i> Annulé</span>
+                                {% endif %}
+                            </div>
+                            <div class="card-body">
+                                <p><strong>Date de début :</strong> {{ registration.event ? registration.event.startDateTime|date('d/m/Y H:i') : '-' }}</p>
+                                <p><strong>Annulé le :</strong> {{ registration.cancellationDate ? registration.cancellationDate|date('d/m/Y H:i') : '-' }}</p>
+                            </div>
+                            <div class="card-footer text-center bg-white border-0">
+                                {% if registration.workflowState in ['REGISTERED', 'NOTIFIED'] %}
+                                    <a href="{{ path('event_desistement', {'id': registration.event.id}) }}"
+                                       class="btn btn-outline-warning btn-sm w-100 mb-1">
+                                        <i class="bi bi-x-circle-fill"></i> Se désister
+                                    </a>
+                                {% elseif registration.workflowState == 'CANCELED' and registration.event.state == 'OPEN' %}
+                                    <a href="{{ path('event_inscription', {'id': registration.event.id}) }}"
+                                       class="btn btn-outline-success btn-sm w-100 mb-1">
+                                        <i class="bi bi-check-circle-fill"></i> Réinscription
+                                    </a>
+                                {% else %}
+                                    <span class="text-muted">—</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="alert alert-info mt-3">
+                <i class="bi bi-info-circle"></i> Vous n’êtes inscrit à aucun événement pour le moment.
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}

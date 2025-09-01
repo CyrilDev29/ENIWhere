@@ -1,5 +1,6 @@
 framework:
     workflows:
+        # Workflow pour la gestion des événements
         event:
             type: state_machine
             supports:
@@ -7,7 +8,7 @@ framework:
             initial_marking: CREATED
             marking_store:
                 type: method
-                property: workflowState
+                property: state
             places:
                 - CREATED
                 - PUBLISHED
@@ -39,3 +40,34 @@ framework:
                 archive:
                     from: [FINISHED, CANCELED]
                     to: ARCHIVED
+
+        # Workflow pour la gestion des inscriptions des participants
+        participation:
+            type: state_machine
+            supports:
+                - App\Entity\Registration
+            initial_marking: REGISTERED
+            marking_store:
+                type: method
+                property: workflowState
+            places:
+                - REGISTERED
+                - CANCELED
+                - NOTIFIED
+            transitions:
+                register: # Transition "technique" pour déclencher entered.REGISTERED
+                    from: REGISTERED
+                    to: REGISTERED
+                cancel:
+                    from: [ REGISTERED, NOTIFIED ]
+                    to: CANCELED
+                notify:
+                    from: REGISTERED
+                    to: NOTIFIED
+                restore_from_cancel:
+                    from: CANCELED
+                    to: REGISTERED
+                restore_from_notify:
+                    from: NOTIFIED
+                    to: REGISTERED
+

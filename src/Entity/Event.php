@@ -294,14 +294,4 @@ class Event
         return $this;
     }
 
-    // Pour le workflow (getter/setter identiques)
-    public function getWorkflowState(): ?string
-    {
-        return $this->state;
-    }
-
-    public function setWorkflowState(string $state): void
-    {
-        $this->state = $state;
-    }
 }
