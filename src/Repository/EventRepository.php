@@ -77,19 +77,18 @@ class EventRepository extends ServiceEntityRepository
                 ->setParameter('to', $f['dateTo']);
         }
 
-        // Par défaut on n’affiche que les "a venir"
-        if (empty($f['includePast'])) {
-            $qb->andWhere('e.startDateTime >= :now')
-                ->setParameter('now', new \DateTime());
-        }
+        // Filtrage des événements archivés
+        $oneMonthAgo = (new \DateTime())->modify('-1 month');
+        $qb->andWhere('e.startDateTime >= :oneMonthAgo')
+            ->setParameter('oneMonthAgo', $oneMonthAgo);
 
-        // organisateur
+        // Organisateur
         if (!empty($f['isOrganizer']) && $user) {
             $qb->andWhere('e.organizer = :user')
                 ->setParameter('user', $user);
         }
 
-        // Inscrit ou noninscrit
+        // Inscrit ou non inscrit
         if (!empty($f['isRegistered']) && $user && empty($f['isNotRegistered'])) {
             $qb->andWhere(':user MEMBER OF e.registrations')
                 ->setParameter('user', $user);
@@ -101,6 +100,7 @@ class EventRepository extends ServiceEntityRepository
 
         return $qb->getQuery()->getResult();
     }
+
 
 
 
