@@ -2,66 +2,100 @@
 
 {% block body %}
     {% if app.user %}
-        <h1>Nouvel Événement</h1>
+        <div class="container my-5">
+            <h1 class="mb-4 text-primary">Créer un nouvel événement</h1>
 
-        {{ form_start(form) }}
+            <div class="card shadow-sm border-0">
+                <div class="card-body">
+                    {{ form_start(form, {'attr': {'class': 'needs-validation'}}) }}
 
-        {{ form_row(form.name) }}
-        {{ form_row(form.startDateTime) }}
-        {{ form_row(form.duration) }}
-        {{ form_row(form.registrationDeadline) }}
-        {{ form_row(form.maxParticipant) }}
-        {{ form_row(form.description) }}
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            {{ form_label(form.name) }}
+                            {{ form_widget(form.name, {'attr': {'class': 'form-control'}}) }}
+                        </div>
+                        <div class="col-md-6">
+                            {{ form_label(form.startDateTime) }}
+                            {{ form_widget(form.startDateTime, {'attr': {'class': 'form-control'}}) }}
+                        </div>
+                        <div class="col-md-4">
+                            {{ form_label(form.duration) }}
+                            {{ form_widget(form.duration, {'attr': {'class': 'form-control'}}) }}
+                        </div>
+                        <div class="col-md-4">
+                            {{ form_label(form.registrationDeadline) }}
+                            {{ form_widget(form.registrationDeadline, {'attr': {'class': 'form-control'}}) }}
+                        </div>
+                        <div class="col-md-4">
+                            {{ form_label(form.maxParticipant) }}
+                            {{ form_widget(form.maxParticipant, {'attr': {'class': 'form-control'}}) }}
+                        </div>
+                        <div class="col-12">
+                            {{ form_label(form.description) }}
+                            {{ form_widget(form.description, {'attr': {'class': 'form-control', 'rows': 4}}) }}
+                        </div>
 
-        <div class="autocomplete-container" style="position: relative;">
-            {{ form_row(form.place) }}
-            <ul id="suggestions" class="suggestions-list"></ul>
+                        <div class="col-12 position-relative">
+                            {{ form_label(form.place) }}
+                            {{ form_widget(form.place, {'attr': {'class': 'form-control autocomplete-place'}}) }}
+                            <ul id="suggestions" class="list-group position-absolute w-100 shadow-sm" style="z-index: 1000; max-height: 180px; overflow-y: auto;"></ul>
+                        </div>
+
+                        <div class="col-md-6">
+                            {{ form_label(form.street) }}
+                            {{ form_widget(form.street, {'attr': {'class': 'form-control'}}) }}
+                        </div>
+                        <div class="col-md-3">
+                            {{ form_label(form.postalCode) }}
+                            {{ form_widget(form.postalCode, {'attr': {'class': 'form-control'}}) }}
+                        </div>
+                        <div class="col-md-3">
+                            {{ form_label(form.city) }}
+                            {{ form_widget(form.city, {'attr': {'class': 'form-control'}}) }}
+                        </div>
+                        <div class="col-md-6">
+                            {{ form_label(form.gpsLatitude) }}
+                            {{ form_widget(form.gpsLatitude, {'attr': {'class': 'form-control'}}) }}
+                        </div>
+                        <div class="col-md-6">
+                            {{ form_label(form.gpsLongitude) }}
+                            {{ form_widget(form.gpsLongitude, {'attr': {'class': 'form-control'}}) }}
+                        </div>
+                        <div class="col-12">
+                            {{ form_label(form.site) }}
+                            {{ form_widget(form.site, {'attr': {'class': 'form-control'}}) }}
+                        </div>
+                    </div>
+
+                    <div class="mt-4 d-flex justify-content-between align-items-center">
+                        <a href="{{ path('event_index') }}" class="btn btn-outline-secondary">
+                            ← Retour à la liste
+                        </a>
+                        <button type="submit" class="btn btn-primary shadow-sm">
+                            Enregistrer
+                        </button>
+                    </div>
+
+                    {{ form_end(form) }}
+                </div>
+            </div>
         </div>
-        {{ form_row(form.street) }}
-        {{ form_row(form.postalCode) }}
-        {{ form_row(form.city) }}
-        {{ form_row(form.gpsLatitude) }}
-        {{ form_row(form.gpsLongitude) }}
-        {{ form_row(form.site) }}
 
-        <button type="submit">Enregistrer</button>
-
-        {{ form_end(form) }}
-
-        <p><a href="{{ path('event_index') }}">← Retour à la liste</a></p>
-
-        <!-- Ici ton style et script pour l'autocomplete -->
     {% else %}
         <p>Vous devez être connecté pour créer un événement. <a href="{{ path('app_login') }}">Se connecter</a></p>
     {% endif %}
 
-
-<style>
-        .suggestions-list {
-            list-style: none;
-            margin: 0;
-            padding: 0;
-            border: 1px solid #ccc;
-            max-height: 150px;
-            overflow-y: auto;
-            position: absolute;
-            background: white;
-            width: 100%;
-            z-index: 1000;
-        }
-
-        .suggestions-list li {
-            padding: 5px;
+    <style>
+        /* Suggestions style */
+        #suggestions li {
             cursor: pointer;
         }
-
-        .suggestions-list li:hover {
-            background: #f0f0f0;
+        #suggestions li:hover {
+            background-color: #f0f8ff;
         }
     </style>
 
     <script>
-        // pour le moment en vrac
         const input = document.querySelector('.autocomplete-place');
         const suggestionsList = document.querySelector('#suggestions');
         const cityInput = document.querySelector('#event_city');
@@ -78,7 +112,6 @@
                 suggestionsList.innerHTML = '';
                 return;
             }
-            console.log('Suggestions:', suggestions);
 
             const response = await fetch(`/places/search?q=${encodeURIComponent(query)}`);
             suggestions = await response.json();
@@ -86,6 +119,7 @@
             suggestionsList.innerHTML = '';
             suggestions.forEach((place, index) => {
                 const li = document.createElement('li');
+                li.classList.add('list-group-item');
                 li.textContent = place.display_name;
                 li.addEventListener('click', () => selectSuggestion(index));
                 suggestionsList.appendChild(li);
@@ -94,37 +128,26 @@
 
         function selectSuggestion(index) {
             const place = suggestions[index];
-
-
             const nameParts = place.display_name.split(',');
             input.value = nameParts[0].trim();
 
             const address = place.address || {};
-            console.log('Nominatim address object:', place.address);
-
-            cityInput.value = address.city
-                || address.town
-                || address.village
-                || address.municipality
-                || address.county
-                || '';
-
+            cityInput.value = address.city || address.town || address.village || address.municipality || address.county || '';
             latInput.value = place.lat || '';
             lonInput.value = place.lon || '';
+
             let streetParts = [];
             if (address.house_number) streetParts.push(address.house_number);
             if (address.road) streetParts.push(address.road);
-            if (address.neighbourhood) streetParts.push(address.neighbourhood); // fallback
-            if (address.suburb) streetParts.push(address.suburb); // fallback
+            if (address.neighbourhood) streetParts.push(address.neighbourhood);
+            if (address.suburb) streetParts.push(address.suburb);
 
             streetInput.value = streetParts.join(' ').trim();
-
             postalCodeInput.value = address.postcode || '';
 
             suggestionsList.innerHTML = '';
         }
 
-        //------------- Fermer la liste de suggestions si on clique en dehors---------------------------
         document.addEventListener('click', function(e) {
             if (!suggestionsList.contains(e.target) && e.target !== input) {
                 suggestionsList.innerHTML = '';

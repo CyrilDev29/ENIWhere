@@ -1,8 +1,11 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Inscription à {{ event.name }}{% endblock %}
+{% block title %}Détail de {{ event.name }}{% endblock %}
 
 {% block body %}
+
+    <div class="container my-5">
+
     <h1>Inscription à la sortie</h1>
 
 
@@ -22,13 +25,134 @@
         {% endif %}
     </div>
 
-    <div class="mt-3">
-        {{ form_start(form) }}
-        {{ form_widget(form) }}
-        {{ form_end(form) }}
-    </div>
 
-    <div class="mt-3">
-        <a >⬅ Retour à la sortie</a>
+
+        {# ------- Messages flash----- #}
+        {% for label, messages in app.flashes %}
+            {% for message in messages %}
+                <div class="alert alert-{{ label }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        {% endfor %}
+        <!-- Header -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1 class="text-primary">
+                <i class="bi bi-calendar2-event-fill"></i> {{ event.name }}
+            </h1>
+            {% if event.state %}
+                <span class="badge bg-info text-dark fs-6">{{ event.state }}</span>
+            {% endif %}
+        </div>
+
+        <div class="row gy-4">
+            <!-- Left column: info & participants -->
+            <div class="col-lg-8">
+                <!-- Informations -->
+                <div class="card mb-4 shadow-sm border-0">
+                    <div class="card-header bg-light text-secondary fw-bold">
+                        <i class="bi bi-info-circle"></i> Informations
+                    </div>
+                    <div class="card-body">
+                        <p><strong>Date de début :</strong> {{ event.startDateTime|date('d/m/Y H:i') }}</p>
+                        <p><strong>Inscriptions jusqu'au :</strong> {{ event.registrationDeadline|date('d/m/Y H:i') }}</p>
+                        <p><strong>Durée :</strong> {{ event.duration }} heures</p>
+                        <p><strong>Description :</strong> {{ event.description }}</p>
+                        <p><strong>Lieu :</strong> {{ event.place ? event.place.name : '–' }}</p>
+                        <p><strong>Organisateur :</strong> {{ event.organizer ? event.organizer.username : '–' }}</p>
+                    </div>
+                </div>
+
+                <!-- Participants -->
+                <div class="card mb-4 shadow-sm border-0">
+                    <div class="card-header bg-light text-secondary fw-bold">
+                        <i class="bi bi-people-fill"></i> Participants ({{ event.registrations|filter(r => r.workflowState in ['REGISTERED', 'NOTIFIED'])|length }}/{{ event.maxParticipant }})
+                    </div>
+                    <ul class="list-group list-group-flush">
+                        {% set activeRegs = event.registrations|filter(r => r.workflowState in ['REGISTERED', 'NOTIFIED']) %}
+                        {% for reg in activeRegs %}
+                            {% if reg.participant %}
+                                <li class="list-group-item d-flex align-items-center">
+                                    <i class="bi bi-person-plus-fill text-primary me-2"></i> {{ reg.participant.username }}
+                                </li>
+                            {% endif %}
+                        {% else %}
+                            <li class="list-group-item text-muted">Aucun participant</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Right column: map & actions -->
+            <div class="col-lg-4">
+                {% if event.place and event.place.gpsLatitude and event.place.gpsLongitude %}
+                    <div class="card mb-4 shadow-sm border-0">
+                        <div class="card-header bg-light text-secondary fw-bold">
+                            <i class="bi bi-map-fill"></i> Localisation
+                        </div>
+                        <div class="card-body p-0">
+                            <div id="map" style="height: 250px; width: 100%; border-bottom-left-radius: .375rem; border-bottom-right-radius: .375rem;"></div>
+                        </div>
+                    </div>
+                {% endif %}
+
+                <!-- Action buttons -->
+                <div class="card shadow-sm border-0">
+                    <div class="card-body text-center">
+                        {% if app.user %}
+                            {% set inscrit = false %}
+                            {% for reg in event.registrations %}
+                                {% if reg.participant and reg.participant.id == app.user.id and reg.workflowState in ['REGISTERED', 'NOTIFIED'] %}
+                                    {% set inscrit = true %}
+                                {% endif %}
+                            {% endfor %}
+
+                            {% if not inscrit %}
+                                <a href="{{ path('event_inscription', {'id': event.id}) }}"
+                                   class="btn btn-warning btn-lg w-100 mb-2">
+                                    <i class="bi bi-check-circle-fill"></i> S'inscrire
+                                </a>
+                            {% else %}
+                                <div class="alert alert-success py-2 mb-2">
+                                    <i class="bi bi-check-lg"></i> Vous êtes inscrit
+                                </div>
+                                <a href="{{ path('event_desistement', {'id': event.id}) }}"
+                                   class="btn btn-outline-danger btn-lg w-100">
+                                    <i class="bi bi-x-circle-fill"></i> Se désister
+                                </a>
+                            {% endif %}
+                        {% else %}
+                            <p class="text-muted mb-3">Vous devez être connecté</p>
+                            <a href="{{ path('app_login') }}" class="btn btn-outline-primary btn-lg w-100">
+                                <i class="bi bi-box-arrow-in-right"></i> Se connecter
+                            </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
+{% endblock %}
+
+{% block javascripts %}
+    {% if event.place and event.place.gpsLatitude and event.place.gpsLongitude %}
+        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+              integrity="sha256-sA+e2d7cJX3U5ul0r7xKBBh5VnuUnX6gC1p3hA8S+JM=" crossorigin=""/>
+        <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+                integrity="sha256-o+H3G0QoEvhfX3U5ul0r7xKBBh5VnuUnX6gC1p3hA8S+JM=" crossorigin=""></script>
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                const map = L.map('map').setView([{{ event.place.gpsLatitude }}, {{ event.place.gpsLongitude }}], 15);
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    attribution: '&copy; OpenStreetMap contributors'
+                }).addTo(map);
+                L.marker([{{ event.place.gpsLatitude }}, {{ event.place.gpsLongitude }}])
+                    .addTo(map)
+                    .bindPopup("<strong>{{ event.place.name }}</strong><br>{{ event.place.street }}")
+                    .openPopup();
+                map.invalidateSize();
+            });
+        </script>
+    {% endif %}
 {% endblock %}
