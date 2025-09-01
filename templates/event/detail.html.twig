@@ -3,7 +3,28 @@
 {% block title %}Détail de {{ event.name }}{% endblock %}
 
 {% block body %}
+
     <div class="container my-5">
+
+    <h1>Inscription à la sortie</h1>
+
+
+    <div class="card p-4 shadow rounded mb-4">
+        <h2 class="mb-3">{{ event.name }}</h2>
+        <p><strong>Date de début :</strong> {{ event.startDateTime|date('d/m/Y H:i') }}</p>
+        <p><strong>Date limite d'inscription :</strong> {{ event.registrationDeadline|date('d/m/Y H:i') }}</p>
+        <p><strong>Durée :</strong> {{ event.duration }} heures</p>
+        <p><strong>Description :</strong> {{ event.description }}</p>
+        <p><strong>Lieu :</strong> {{ event.place ? event.place.name : 'Non défini' }}</p>
+        <p><strong>Organisateur :</strong> {{ event.organizer ? event.organizer.username : 'Inconnu' }}</p>
+        <p><strong>Participants :</strong> {{ event.registrations|length }} / {{ event.maxParticipant }}</p>
+        <p><strong>Motif d’annulation :</strong> {{ event.cancellationReason }}</p>
+        {% set m = event.workflowstate|upper %}
+        {% if m == 'CANCELED' and event.cancellationReason %}
+
+        {% endif %}
+    </div>
+
 
 
         {# ------- Messages flash----- #}

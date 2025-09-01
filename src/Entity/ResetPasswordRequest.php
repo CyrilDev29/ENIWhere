@@ -17,8 +17,9 @@ class ResetPasswordRequest implements ResetPasswordRequestInterface
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\ManyToOne]
-    #[ORM\JoinColumn(nullable: false)]
+    // Relation vers User, suppression en cascade côté DB
+    #[ORM\ManyToOne(inversedBy: 'resetPasswordRequests')]
+    #[ORM\JoinColumn(nullable: false, onDelete: "CASCADE")]
     private ?User $user = null;
 
     public function __construct(User $user, \DateTimeInterface $expiresAt, string $selector, string $hashedToken)
@@ -32,8 +33,16 @@ class ResetPasswordRequest implements ResetPasswordRequestInterface
         return $this->id;
     }
 
-    public function getUser(): User
+    // ⚠️ Doit correspondre exactement à l'interface : object (non-nullable)
+    public function getUser(): object
     {
         return $this->user;
+    }
+
+    // Setter pratique si tu gères la relation inverse côté User
+    public function setUser(?User $user): self
+    {
+        $this->user = $user;
+        return $this;
     }
 }

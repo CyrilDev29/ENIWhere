@@ -13,6 +13,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\HasLifecycleCallbacks]
 class Event
 {
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
@@ -48,7 +49,7 @@ class Event
     private ?\DateTime $updatedAt = null;
 
     #[ORM\ManyToOne(inversedBy: 'organizedEvents')]
-    #[ORM\JoinColumn(nullable: true)]
+    #[ORM\JoinColumn(nullable: true, onDelete: "SET NULL")]
     private ?User $organizer = null;
 
 
@@ -72,6 +73,8 @@ class Event
 
     #[ORM\Column(length: 20)]
     private ?string $state = null;
+
+
 
     public function __construct()
     {
@@ -270,14 +273,14 @@ class Event
         return $end;
     }
 
-    /** Date d’ouverture des inscriptions : si tu n’as pas de champ dédié, on ouvre dès la publication */
+    /** Date d’ouverture des inscriptions  */
     public function getRegistrationOpenAt(): ?\DateTime
     {
         // pas de champ dédié -> on considère l'ouverture immédiate
         return $this->createdAt ?: $this->startDateTime;
     }
 
-    /** Date de fermeture des inscriptions = registrationDeadline */
+    /** Date de fermeture des inscriptions  */
     public function getRegistrationCloseAt(): ?\DateTime
     {
         return $this->registrationDeadline;
@@ -293,5 +296,6 @@ class Event
         $this->state = $state;
         return $this;
     }
+
 
 }

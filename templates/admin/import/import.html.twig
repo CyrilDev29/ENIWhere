@@ -1,0 +1,207 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Import CSV des utilisateurs{% endblock %}
+
+{% block body %}
+    <div class="container mt-4">
+        <h1>Import CSV des utilisateurs</h1>
+
+        {# Affichage des messages flash #}
+        {% for type, messages in app.flashes %}
+            {% for message in messages %}
+                <div class="alert alert-{{ type == 'error' ? 'danger' : type }} alert-dismissible fade show">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            {% endfor %}
+        {% endfor %}
+
+        {# Instructions détaillées pour l'utilisateur #}
+        <div class="card mb-4">
+            <div class="card-header bg-info text-white">
+                <h5><i class="fas fa-info-circle"></i> Instructions importantes</h5>
+            </div>
+            <div class="card-body">
+                <h6>Format du fichier CSV requis :</h6>
+                <p>Le fichier CSV doit contenir les colonnes suivantes (dans cet ordre) :</p>
+                <div class="table-responsive">
+                    <table class="table table-sm table-bordered">
+                        <thead class="table-dark">
+                        <tr>
+                            <th>Colonne</th>
+                            <th>Obligatoire</th>
+                            <th>Description</th>
+                            <th>Exemple</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr>
+                            <td><code>lastName</code></td>
+                            <td><span class="badge bg-danger">OUI</span></td>
+                            <td>Nom de famille</td>
+                            <td>Dupont</td>
+                        </tr>
+                        <tr>
+                            <td><code>firstName</code></td>
+                            <td><span class="badge bg-danger">OUI</span></td>
+                            <td>Prénom</td>
+                            <td>Jean</td>
+                        </tr>
+                        <tr>
+                            <td><code>username</code></td>
+                            <td><span class="badge bg-danger">OUI</span></td>
+                            <td>Nom d'utilisateur (unique)</td>
+                            <td>jdupont</td>
+                        </tr>
+                        <tr>
+                            <td><code>email</code></td>
+                            <td><span class="badge bg-danger">OUI</span></td>
+                            <td>Email (unique, doit finir par @campus-eni.fr)</td>
+                            <td>jean.dupont@campus-eni.fr</td>
+                        </tr>
+                        <tr>
+                            <td><code>password</code></td>
+                            <td><span class="badge bg-danger">OUI</span></td>
+                            <td>Mot de passe (minimum 8 caractères)</td>
+                            <td>MonMotDePasse123!</td>
+                        </tr>
+                        <tr>
+                            <td><code>phoneNumber</code></td>
+                            <td><span class="badge bg-success">NON</span></td>
+                            <td>Numéro de téléphone</td>
+                            <td>0123456789</td>
+                        </tr>
+                        <tr>
+                            <td><code>site</code></td>
+                            <td><span class="badge bg-success">NON</span></td>
+                            <td>Nom du site (doit exister en base)</td>
+                            <td>Campus Nantes</td>
+                        </tr>
+                        <tr>
+                            <td><code>roles</code></td>
+                            <td><span class="badge bg-success">NON</span></td>
+                            <td>Rôles séparés par ;</td>
+                            <td>ROLE_USER;ROLE_ADMIN</td>
+                        </tr>
+                        <tr>
+                            <td><code>isActive</code></td>
+                            <td><span class="badge bg-success">NON</span></td>
+                            <td>Utilisateur actif (1 ou 0)</td>
+                            <td>1</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="alert alert-warning mt-3">
+                    <strong>⚠️ Exemple de ligne CSV :</strong><br>
+                    <code>lastName,firstName,username,email,password,phoneNumber,site,roles,isActive</code><br>
+                    <code>Dupont,Jean,jdupont,jean.dupont@campus-eni.fr,MonMotDePasse123!,0123456789,Nantes,ROLE_USER;ROLE_ADMIN,1</code>
+                </div>
+            </div>
+        </div>
+
+        {# Formulaire d'upload #}
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h5><i class="fas fa-upload"></i> Sélectionner le fichier CSV</h5>
+            </div>
+            <div class="card-body">
+                {{ form_start(form, {'attr': {'enctype': 'multipart/form-data'}}) }}
+                <div class="mb-3">
+                    {{ form_label(form.csvFile) }}
+                    {{ form_widget(form.csvFile, {'attr': {'class': 'form-control'}}) }}
+                    {{ form_errors(form.csvFile) }}
+                    <div class="form-text">
+                        Formats acceptés : .csv (maximum 5 Mo)
+                    </div>
+                </div>
+                {{ form_widget(form.submit) }}
+                {{ form_end(form) }}
+            </div>
+        </div>
+
+        {# Résultats de l'import #}
+        {% if importResults is not empty %}
+            <div class="mt-4">
+                <h3>Résultats de l'import</h3>
+
+                {# Utilisateurs créés avec succès #}
+                {% if importResults.success is not empty %}
+                    <div class="card mb-3">
+                        <div class="card-header bg-success text-white">
+                            <h5><i class="fas fa-check-circle"></i> {{ importResults.success|length }} utilisateur(s) créé(s) avec succès</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-sm table-hover">
+                                    <thead class="table-success">
+                                    <tr>
+                                        <th>Ligne</th>
+                                        <th>Email</th>
+                                        <th>Username</th>
+                                        <th>Site</th>
+                                        <th>Rôles</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    {% for result in importResults.success %}
+                                        <tr>
+                                            <td>{{ result.line }}</td>
+                                            <td>{{ result.email }}</td>
+                                            <td>{{ result.username }}</td>
+                                            <td>{{ result.site }}</td>
+                                            <td><small>{{ result.roles }}</small></td>
+                                        </tr>
+                                    {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+
+                {# Erreurs rencontrées #}
+                {% if importResults.errors is not empty %}
+                    <div class="card">
+                        <div class="card-header bg-danger text-white">
+                            <h5><i class="fas fa-exclamation-triangle"></i> {{ importResults.errors|length }} erreur(s) rencontrée(s)</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-sm table-hover">
+                                    <thead class="table-danger">
+                                    <tr>
+                                        <th>Ligne</th>
+                                        <th>Email</th>
+                                        <th>Erreur</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    {% for error in importResults.errors %}
+                                        <tr>
+                                            <td>{{ error.line }}</td>
+                                            <td>{{ error.email }}</td>
+                                            <td class="text-danger">{{ error.error }}</td>
+                                        </tr>
+                                    {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+        {% endif %}
+
+        {# Boutons de navigation #}
+        <div class="mt-4">
+            <a href="{{ path('app_main') }}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Retour à l'accueil
+            </a>
+            <a href="{{ path('admin_import_users') }}" class="btn btn-outline-primary ms-2">
+                <i class="fas fa-redo"></i> Nouvel import
+            </a>
+        </div>
+    </div>
+{% endblock %}
