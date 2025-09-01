@@ -12,19 +12,18 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Twig\Profiler\Profile;
 
 final class ProfileController extends AbstractController
 {
+    #[IsGranted('ROLE_USER')]
     #[Route('/profile/edit', name: 'profile_edit')]
     public function edit(Request $request, EntityManagerInterface $em, UserPasswordHasherInterface $passwordHasher): Response
     {
         $user = $this->getUser();
 
-        $form = $this->createForm(RegistrationFormType::class, $user, [
-            'is_edit' => true,
-            'is_admin' => $this->isGranted('ROLE_ADMIN'),
-        ]);
+        $form = $this->createForm(ProfileFormType::class, $user);
 
         $form->handleRequest($request);
 
@@ -34,7 +33,6 @@ final class ProfileController extends AbstractController
                 $user->setPassword($passwordHasher->hashPassword($user, $plainPassword));
             }
 
-            $em->persist($user);
             $em->flush();
 
             $this->addFlash('success', 'Votre profil a été mis à jour.');
@@ -44,7 +42,8 @@ final class ProfileController extends AbstractController
 
         return $this->render('profile/edit.html.twig', [
             'form' => $form->createView(),
-            'is_admin' => false,
+            'is_admin' => $this->isGranted('ROLE_ADMIN'),
+            'user' => $user,
         ]);
     }
 
