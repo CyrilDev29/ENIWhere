@@ -3,13 +3,18 @@
 {% block title %}Détail de {{ event.name }}{% endblock %}
 
 {% block body %}
-
     <div class="container my-5">
+        <!-- Header -->
+        <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap">
+            <h1 class="text-primary fw-bold">
+                <i class="bi bi-calendar2-event-fill"></i> {{ event.name }}
+            </h1>
+            {% if event.state %}
+                <span class="badge bg-info text-dark fs-6">{{ event.state }}</span>
+            {% endif %}
+        </div>
 
-    <h1>Inscription à la sortie</h1>
-
-
-        {# ------- Messages flash----- #}
+        <!-- Flash messages -->
         {% for label, messages in app.flashes %}
             {% for message in messages %}
                 <div class="alert alert-{{ label }} alert-dismissible fade show" role="alert">
@@ -18,22 +23,12 @@
                 </div>
             {% endfor %}
         {% endfor %}
-        <!-- Header -->
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h1 class="text-primary">
-                <i class="bi bi-calendar2-event-fill"></i> {{ event.name }}
-            </h1>
-            {% if event.state %}
-                <span class="badge bg-info text-dark fs-6">{{ event.state }}</span>
-            {% endif %}
-        </div>
 
         <div class="row gy-4">
-            <!-- Left column: info & participants -->
+            <!-- Left column: informations + participants -->
             <div class="col-lg-8">
-                <!-- Informations -->
-                <div class="card mb-4 shadow-sm border-0">
-                    <div class="card-header bg-light text-secondary fw-bold">
+                <div class="card shadow-sm rounded mb-4">
+                    <div class="card-header bg-primary text-white fw-bold">
                         <i class="bi bi-info-circle"></i> Informations
                     </div>
                     <div class="card-body">
@@ -44,7 +39,7 @@
                         <p><strong>Lieu :</strong> {{ event.place ? event.place.name : '–' }}</p>
                         <p><strong>Organisateur :</strong>
                             {% if event.organizer %}
-                                <a href="{{ path('user_profile_show', {id: event.organizer.id}) }}">
+                                <a href="{{ path('user_profile_show', {id: event.organizer.id}) }}" class="link-primary fw-bold">
                                     {{ event.organizer.username }}
                                 </a>
                             {% else %}
@@ -54,9 +49,8 @@
                     </div>
                 </div>
 
-                <!-- Participants -->
-                <div class="card mb-4 shadow-sm border-0">
-                    <div class="card-header bg-light text-secondary fw-bold">
+                <div class="card shadow-sm rounded mb-4">
+                    <div class="card-header bg-primary text-white fw-bold">
                         <i class="bi bi-people-fill"></i> Participants ({{ event.registrations|filter(r => r.workflowState in ['REGISTERED', 'NOTIFIED'])|length }}/{{ event.maxParticipant }})
                     </div>
                     <ul class="list-group list-group-flush">
@@ -74,11 +68,11 @@
                 </div>
             </div>
 
-            <!-- Right column: map & actions -->
+            <!-- Right column: map + actions -->
             <div class="col-lg-4">
                 {% if event.place and event.place.gpsLatitude and event.place.gpsLongitude %}
-                    <div class="card mb-4 shadow-sm border-0">
-                        <div class="card-header bg-light text-secondary fw-bold">
+                    <div class="card shadow-sm rounded mb-4">
+                        <div class="card-header bg-primary text-white fw-bold">
                             <i class="bi bi-map-fill"></i> Localisation
                         </div>
                         <div class="card-body p-0">
@@ -87,8 +81,7 @@
                     </div>
                 {% endif %}
 
-                <!-- Action buttons -->
-                <div class="card shadow-sm border-0">
+                <div class="card shadow-sm rounded">
                     <div class="card-body text-center">
                         {% if app.user %}
                             {% set inscrit = false %}
@@ -99,16 +92,14 @@
                             {% endfor %}
 
                             {% if not inscrit %}
-                                <a href="{{ path('event_inscription', {'id': event.id}) }}"
-                                   class="btn btn-warning btn-lg w-100 mb-2">
+                                <a href="{{ path('event_inscription', {'id': event.id}) }}" class="btn btn-warning btn-lg w-100 mb-2">
                                     <i class="bi bi-check-circle-fill"></i> S'inscrire
                                 </a>
                             {% else %}
                                 <div class="alert alert-success py-2 mb-2">
                                     <i class="bi bi-check-lg"></i> Vous êtes inscrit
                                 </div>
-                                <a href="{{ path('event_desistement', {'id': event.id}) }}"
-                                   class="btn btn-outline-danger btn-lg w-100">
+                                <a href="{{ path('event_desistement', {'id': event.id}) }}" class="btn btn-outline-danger btn-lg w-100">
                                     <i class="bi bi-x-circle-fill"></i> Se désister
                                 </a>
                             {% endif %}
@@ -123,14 +114,41 @@
             </div>
         </div>
     </div>
+
+    <style>
+        /* Cartes modernes */
+        .card {
+            border-radius: 12px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 28px rgba(0,0,0,0.15);
+        }
+        .card-header {
+            font-size: 1rem;
+        }
+        .list-group-item {
+            font-size: 0.95rem;
+        }
+        .btn {
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+
+        h1.text-primary {
+            color: #ff6600; /* change la couleur ici, ex: orange vif */
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.2); /* légère ombre pour le relief */
+        }
+    </style>
 {% endblock %}
 
 {% block javascripts %}
     {% if event.place and event.place.gpsLatitude and event.place.gpsLongitude %}
-        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-              integrity="sha256-sA+e2d7cJX3U5ul0r7xKBBh5VnuUnX6gC1p3hA8S+JM=" crossorigin=""/>
-        <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-                integrity="sha256-o+H3G0QoEvhfX3U5ul0r7xKBBh5VnuUnX6gC1p3hA8S+JM=" crossorigin=""></script>
+        <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
         <script>
             document.addEventListener('DOMContentLoaded', () => {
                 const map = L.map('map').setView([{{ event.place.gpsLatitude }}, {{ event.place.gpsLongitude }}], 15);

@@ -31,13 +31,13 @@
             <div class="row g-4">
                 {% for e in events %}
                     <div class="col-md-6 col-lg-4">
-                        <div class="card shadow-sm h-100">
-                            <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                        <div class="card event-card h-100 shadow-sm">
+                            <div class="card-header d-flex justify-content-between align-items-center bg-light">
                                 <span class="fw-bold">{{ e.name }}</span>
                                 <span class="badge
-                                {% if e.state == 'OPEN' %}bg-success
-                                {% elseif e.state == 'CANCELED' %}bg-secondary
-                                {% else %}bg-info text-dark{% endif %}">
+                            {% if e.state == 'OPEN' %}bg-success
+                            {% elseif e.state == 'CANCELED' %}bg-danger
+                            {% else %}bg-warning text-dark{% endif %}">
                                 {{ e.state }}
                             </span>
                             </div>
@@ -47,16 +47,15 @@
                                 <p><strong>Lieu :</strong> {{ e.place ? e.place.name : '-' }}</p>
                                 <p><strong>Durée :</strong> {{ e.duration }} h</p>
                                 <p><strong>Inscriptions :</strong> {{ e.registrations|length }}/{{ e.maxParticipant ?: '-' }}</p>
-                                <p><strong>Description :</strong> {{ e.description|length > 80 ? e.description|slice(0,80) ~ '...' : e.description }}</p>
+                                <p class="description">{{ e.description|length > 100 ? e.description|slice(0,100) ~ '...' : e.description }}</p>
                                 {% if e.cancellationReason %}
                                     <p class="text-danger"><strong>Raison d'annulation :</strong> {{ e.cancellationReason }}</p>
                                 {% endif %}
                             </div>
-                            <div class="card-footer d-flex justify-content-between">
-                                <a href="{{ path('event_detail', {id: e.id}) }}" class="btn btn-outline-primary btn-sm w-50 me-1">
-                                    <i class="bi bi-eye-fill"></i> S'inscrire
+                            <div class="card-footer text-center">
+                                <a href="{{ path('event_detail', {id: e.id}) }}" class="btn btn-primary btn-sm w-75">
+                                    <i class="bi bi-eye-fill"></i> Voir / S'inscrire
                                 </a>
-
                             </div>
                         </div>
                     </div>
@@ -64,4 +63,47 @@
             </div>
         {% endif %}
     </div>
+
+    <style>
+
+        .event-card {
+            border-radius: 12px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .event-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+        }
+        .event-card .card-header {
+            font-size: 1rem;
+            font-weight: 600;
+            border-bottom: none;
+        }
+        .event-card .card-body p {
+            margin-bottom: 0.5rem;
+        }
+        .event-card .description {
+            color: #555;
+            font-size: 0.9rem;
+        }
+        .event-card .badge {
+            font-size: 0.8rem;
+            padding: 0.4em 0.6em;
+        }
+        .event-card .btn {
+            font-weight: 600;
+            transition: background 0.3s ease;
+        }
+        .event-card .btn:hover {
+            background-color: #0056b3;
+            color: #fff;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 767px) {
+            .event-card {
+                margin-bottom: 1rem;
+            }
+        }
+    </style>
 {% endblock %}
