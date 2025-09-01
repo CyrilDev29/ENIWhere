@@ -1,67 +1,56 @@
-{# templates/event/manage.html.twig #}
 {% extends 'base.html.twig' %}
 
 {% block title %}Gérer l'événement{% endblock %}
 
 {% block body %}
+    <div class="container mt-4">
 
-    {# Flash messages #}
-    {% for label, messages in app.flashes %}
-        {% for message in messages %}
-            <div class="alert alert-{{ label }} mb-3">{{ message }}</div>
+        {# Flash messages #}
+        {% for label, messages in app.flashes %}
+            {% for message in messages %}
+                <div class="alert alert-{{ label }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fermer"></button>
+                </div>
+            {% endfor %}
         {% endfor %}
-    {% endfor %}
 
-    <h1 class="mb-3">Gérer l'événement : {{ event.name ?? ('Événement #' ~ event.id) }}</h1>
+        <h1 class="mb-4 text-center text-primary">Gérer : {{ event.name ?? ('Événement #' ~ event.id) }}</h1>
 
-    <p class="mb-4">
-        <strong>Place workflow :</strong> {{ event.state }}<br>
-        {#  <strong>État BDD :</strong> {{ event.state ? event.state.label : '—' }}#}
-    </p>
-<div class="actions">
-    {# Publier: draft -> published #}
-    <form method="post" action="{{ path('event_publish', {id: event.id}) }}" style="display:inline">
-        <input type="hidden" name="_token" value="{{ csrf_token('publish_event_' ~ event.id) }}">
-        <button class="btn btn-sm btn-primary" {% if event.state != 'CREATED' %}disabled{% endif %}>Publier</button>
-    </form>
+        {# ====== Actions workflow ====== #}
+        <div class="mb-4 d-flex flex-wrap gap-2 justify-content-center">
+            {% set state = event.state|upper %}
+            <form method="post" action="{{ path('event_publish', {id: event.id}) }}">
+                <input type="hidden" name="_token" value="{{ csrf_token('publish_event_' ~ event.id) }}">
+                <button class="btn btn-primary btn-sm" {% if state != 'CREATED' %}disabled{% endif %}>Publier</button>
+            </form>
 
-    {# Ouvrir inscriptions: published -> registration_open #}
-    <form method="post" action="{{ path('event_open_regs', {id: event.id}) }}" style="display:inline">
-        <input type="hidden" name="_token" value="{{ csrf_token('open_event_' ~ event.id) }}">
-        <button class="btn btn-sm btn-secondary" {% if event.state != 'PUBLISHED' %}disabled{% endif %}>Ouvrir inscriptions</button>
-    </form>
+            <form method="post" action="{{ path('event_open_regs', {id: event.id}) }}">
+                <input type="hidden" name="_token" value="{{ csrf_token('open_event_' ~ event.id) }}">
+                <button class="btn btn-secondary btn-sm" {% if state != 'PUBLISHED' %}disabled{% endif %}>Ouvrir inscriptions</button>
+            </form>
 
-    {# Fermer inscriptions: registration_open -> registration_closed #}
-    <form method="post" action="{{ path('event_close_regs', {id: event.id}) }}" style="display:inline">
-        <input type="hidden" name="_token" value="{{ csrf_token('close_event_' ~ event.id) }}">
-        <button class="btn btn-sm btn-warning" {% if event.state != 'OPEN' %}disabled{% endif %}>Fermer inscriptions</button>
-    </form>
+            <form method="post" action="{{ path('event_close_regs', {id: event.id}) }}">
+                <input type="hidden" name="_token" value="{{ csrf_token('close_event_' ~ event.id) }}">
+                <button class="btn btn-warning btn-sm" {% if state != 'OPEN' %}disabled{% endif %}>Fermer inscriptions</button>
+            </form>
 
-    {# Démarrer: registration_closed -> ongoing #}
-    <form method="post" action="{{ path('event_start', {id: event.id}) }}" style="display:inline">
-        <input type="hidden" name="_token" value="{{ csrf_token('start_event_' ~ event.id) }}">
-        <button class="btn btn-sm btn-info" {% if event.state != 'CLOSED' %}disabled{% endif %}>Démarrer</button>
-    </form>
+            <form method="post" action="{{ path('event_start', {id: event.id}) }}">
+                <input type="hidden" name="_token" value="{{ csrf_token('start_event_' ~ event.id) }}">
+                <button class="btn btn-info btn-sm" {% if state != 'CLOSED' %}disabled{% endif %}>Démarrer</button>
+            </form>
 
-    {# Terminer: ongoing -> finished #}
-    <form method="post" action="{{ path('event_finish', {id: event.id}) }}" style="display:inline">
-        <input type="hidden" name="_token" value="{{ csrf_token('finish_event_' ~ event.id) }}">
-        <button class="btn btn-sm btn-success" {% if event.state != 'ONGOING' %}disabled{% endif %}>Terminer</button>
-    </form>
+            <form method="post" action="{{ path('event_finish', {id: event.id}) }}">
+                <input type="hidden" name="_token" value="{{ csrf_token('finish_event_' ~ event.id) }}">
+                <button class="btn btn-success btn-sm" {% if state != 'ONGOING' %}disabled{% endif %}>Terminer</button>
+            </form>
 
-    {# Annuler: (tous sauf finished/canceled) -> canceled #}
-    <form id="cancel-form-{{ event.id }}" method="post" action="{{ path('event_cancel', {id: event.id}) }}" style="display:inline">
-        <input type="hidden" name="_token" value="{{ csrf_token('cancel_event_' ~ event.id) }}">
-        <input type="hidden" name="reason" value="">
-        {% set m = event.workflowstate|upper %}
-        <button type="button"
-                class="btn btn-sm btn-danger"
-                data-bs-toggle="modal"
-                data-bs-target="#cancelModal-{{ event.id }}"
-                {% if m in ['FINISHED','CANCELED'] %}disabled{% endif %}>
-            Annuler
-        </button>
-        {# Modal Bootstrap #}
+            <button class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#cancelModal-{{ event.id }}" {% if state in ['FINISHED','CANCELED'] %}disabled{% endif %}>
+                Annuler
+            </button>
+        </div>
+
+        {# Modal d'annulation #}
         <div class="modal fade" id="cancelModal-{{ event.id }}" tabindex="-1" aria-labelledby="cancelModalLabel-{{ event.id }}" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered">
                 <div class="modal-content">
@@ -70,109 +59,61 @@
                             <h5 class="modal-title" id="cancelModalLabel-{{ event.id }}">Motif d’annulation</h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
                         </div>
-                        {% set m = event.workflowstate|upper %}
-                        {% if m == 'CANCELED' and event.cancellationReason %}
-                            <p class="mt-2"><strong>Motif d’annulation :</strong><br>{{ event.cancellationReason }}</p>
-                        {% endif %}
-
-
                         <div class="modal-body">
                             <input type="hidden" name="_token" value="{{ csrf_token('cancel_event_' ~ event.id) }}">
                             <div class="mb-3">
-                                <label for="cancel-reason-{{ event.id }}" class="form-label">Expliquez pourquoi vous annulez :</label>
-                                <textarea id="cancel-reason-{{ event.id }}"
-                                          name="reason"
-                                          class="form-control"
-                                          rows="4"
-                                          required
-                                          placeholder="Ex. : météo défavorable, manque de participants, etc."></textarea>
-                                <div class="form-text">Ce motif sera visible sur la fiche de l’événement.</div>
+                                <label for="cancel-reason-{{ event.id }}" class="form-label">Expliquez pourquoi :</label>
+                                <textarea id="cancel-reason-{{ event.id }}" name="reason" class="form-control" rows="4" required placeholder="Ex. météo, manque de participants..."></textarea>
                             </div>
                         </div>
-
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Retour</button>
-                            <button type="submit" class="btn btn-danger">Confirmer l’annulation</button>
+                            <button type="submit" class="btn btn-danger">Confirmer</button>
                         </div>
                     </form>
                 </div>
             </div>
         </div>
 
-
-
-
-    </form>
-
-    <script>
-        function askCancelReason(id) {
-            const reason = prompt("Motif d'annulation :");
-            if (reason === null) return;            // annulé par l'utilisateur
-            const trimmed = String(reason).trim();
-            if (!trimmed) {
-                alert("Merci de saisir un motif.");
-                return;
-            }
-            const form = document.getElementById('cancel-form-' + id);
-            form.querySelector('input[name=\"reason\"]').value = trimmed;
-            form.submit();
-        }
-    </script>
-    </div>
-
-    {# ====== Carte détails ====== #}
-    <div class="card p-4 shadow rounded mb-4">
-        <h2 class="mb-3">{{ event.name }}</h2>
-        <p><strong>Date de début :</strong> {{ event.startDateTime ? event.startDateTime|date('d/m/Y H:i') : '—' }}</p>
-        <p><strong>Date limite d'inscription :</strong> {{ event.registrationDeadline ? event.registrationDeadline|date('d/m/Y H:i') : '—' }}</p>
-        <p><strong>Durée :</strong> {{ event.duration is not null ? event.duration ~ ' h' : '—' }}</p>
-        <p><strong>Description :</strong> {{ event.description ?? '—' }}</p>
-        <p><strong>Lieu :</strong> {{ event.place ? event.place.name : 'Non défini' }}</p>
-        <p><strong>Adresse :</strong>
-            {% if event.place %}
-                {{ event.place.street ?? '—' }},
-                {{ event.place.city ? event.place.city.name ~ ' ' ~ event.place.city.postalCode : '' }}
-            {% else %} — {% endif %}
-        </p>
-        <p><strong>Organisateur :</strong> {{ event.organizer ? event.organizer.username : 'Inconnu' }}</p>
-        <p><strong>Participants :</strong> {{ event.registrations|length }} / {{ event.maxParticipant ?? '—' }}</p>
-    </div>
-
-    {# ====== Mode édition : affichage du formulaire pré-rempli ====== #}
-    {% if form is defined %}
-        <div class="card p-4 shadow rounded mb-4">
-            <h3 class="mb-3">Modifier l'événement</h3>
-            {{ form_start(form, { attr: { novalidate: 'novalidate' } }) }}
-            {{ form_errors(form) }}
-
-            {# Si tu veux laisser Symfony tout rendre #}
-            {{ form_widget(form) }}
-
-            {# OU, si tu préfères l’ordre, remplace par des form_row explicites :
-          {{ form_row(form.name) }}
-          {{ form_row(form.description) }}
-          {{ form_row(form.startDateTime) }}
-          {{ form_row(form.registrationDeadline) }}
-          {{ form_row(form.duration) }}
-          {{ form_row(form.maxParticipant) }}
-          {{ form_row(form.place) }}
-          {{ form_row(form.city) }}
-          {{ form_row(form.street) }}
-          {{ form_row(form.postalCode) }}
-          {{ form_row(form.gpsLatitude) }}
-          {{ form_row(form.gpsLongitude) }}
-            #}
-
-            <div class="mt-3">
-                <button class="btn btn-primary">Enregistrer</button>
-                <a href="{{ path('event_manage', { id: event.id }) }}" class="btn btn-secondary">Annuler</a>
+        {# ====== Détails de l'événement ====== #}
+        <div class="card shadow-sm rounded mb-4">
+            <div class="card-body">
+                <h2 class="card-title mb-3">{{ event.name }}</h2>
+                <p><strong>Date de début :</strong> {{ event.startDateTime ? event.startDateTime|date('d/m/Y H:i') : '—' }}</p>
+                <p><strong>Date limite inscription :</strong> {{ event.registrationDeadline ? event.registrationDeadline|date('d/m/Y H:i') : '—' }}</p>
+                <p><strong>Durée :</strong> {{ event.duration is not null ? event.duration ~ ' h' : '—' }}</p>
+                <p><strong>Description :</strong> {{ event.description ?? '—' }}</p>
+                <p><strong>Lieu :</strong> {{ event.place ? event.place.name : 'Non défini' }}</p>
+                <p><strong>Adresse :</strong>
+                    {% if event.place %}
+                        {{ event.place.street ?? '—' }},
+                        {{ event.place.city ? event.place.city.name ~ ' ' ~ event.place.city.postalCode : '' }}
+                    {% else %} — {% endif %}
+                </p>
+                <p><strong>Organisateur :</strong> {{ event.organizer ? event.organizer.username : 'Inconnu' }}</p>
+                <p><strong>Participants :</strong> {{ event.registrations|length }} / {{ event.maxParticipant ?? '—' }}</p>
             </div>
-            {{ form_end(form) }}
         </div>
-    {% else %}
-        {# Mode lecture : bouton Modifier + Retour #}
-        <a href="{{ path('event_edit', { id: event.id }) }}" class="btn btn-warning btn-sm">Modifier</a>
-        <a href="{{ path('event_index') }}" class="btn btn-secondary btn-sm">Retour</a>
-    {% endif %}
 
+        {# ====== Formulaire édition si défini ====== #}
+        {% if form is defined %}
+            <div class="card shadow-sm rounded mb-4 p-4">
+                <h3 class="mb-3">Modifier l'événement</h3>
+                {{ form_start(form, { attr: { novalidate: 'novalidate' } }) }}
+                {{ form_errors(form) }}
+                {{ form_widget(form) }}
+                <div class="mt-3 d-flex gap-2">
+                    <button class="btn btn-primary">Enregistrer</button>
+                    <a href="{{ path('event_manage', { id: event.id }) }}" class="btn btn-secondary">Annuler</a>
+                </div>
+                {{ form_end(form) }}
+            </div>
+        {% else %}
+            <div class="d-flex gap-2 mb-4">
+                <a href="{{ path('event_edit', { id: event.id }) }}" class="btn btn-warning btn-sm">Modifier</a>
+                <a href="{{ path('event_index') }}" class="btn btn-secondary btn-sm">Retour</a>
+            </div>
+        {% endif %}
+
+    </div>
 {% endblock %}
