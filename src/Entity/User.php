@@ -88,6 +88,13 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(targetEntity: Registration::class, mappedBy: 'participant', orphanRemoval: true)]
     private Collection $registrations;
 
+
+    /**
+     * @var Collection<int, ResetPasswordRequest>
+     */
+    #[ORM\OneToMany(mappedBy: 'user', targetEntity: ResetPasswordRequest::class, orphanRemoval: true, cascade: ['remove'])]
+    private Collection $resetPasswordRequests;
+
     #[ORM\ManyToOne(inversedBy: 'users')]
     #[ORM\JoinColumn(nullable: true)]
     private ?Site $site = null;

@@ -80,5 +80,17 @@
         </div>
 
         {{ form_end(form) }}
+
+        {% if is_admin %}
+            <div class="col-12 mt-3">
+                <form method="post"
+                      action="{{ path('admin_user_delete', {id: user.id}) }}"
+                      onsubmit="return confirm('Voulez-vous vraiment supprimer cet utilisateur ?');"
+                      style="display:inline;">
+                    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ user.id) }}">
+                    <button class="btn btn-danger">Supprimer</button>
+                </form>
+            </div>
+        {% endif %}
     </div>
 {% endblock %}
