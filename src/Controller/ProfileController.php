@@ -68,7 +68,7 @@ final class ProfileController extends AbstractController
             $em->flush();
             $this->addFlash('success', 'Votre profil a été mis à jour.');
 
-            return $this->redirectToRoute('profile_show');
+            return $this->redirectToRoute('profile_edit');
         }
 
         return $this->render('profile/edit.html.twig', [

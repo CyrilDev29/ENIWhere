@@ -2,6 +2,112 @@
 
 {% block title %}Détail de {{ event.name }}{% endblock %}
 
+{% block stylesheets %}
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #76f0f1, #9b79e0);
+            color: #202020;
+        }
+
+        /* Cartes modernes */
+        .card {
+            border-radius: 20px;
+            box-shadow: 0 12px 28px rgba(0,0,0,0.12);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 18px 35px rgba(0,0,0,0.18);
+        }
+
+        .card-header {
+            background-color: #667eea; /* couleur moderne personnalisée */
+            color: #101112;
+            font-weight: 600;
+            font-size: 1rem;
+            border-top-left-radius: 20px;
+            border-top-right-radius: 20px;
+        }
+
+        .card-body {
+            font-size: 0.95rem;
+        }
+
+        .list-group-item {
+            font-size: 0.95rem;
+            border: none;
+            padding: 0.8rem 1rem;
+            border-radius: 12px;
+            transition: background 0.2s ease;
+        }
+        .list-group-item:hover {
+            background-color: rgba(102, 126, 234, 0.1);
+        }
+
+        /* Badges */
+        .badge {
+            border-radius: 12px;
+            padding: 0.5rem 0.8rem;
+            font-weight: 600;
+            font-size: 0.85rem;
+        }
+        .badge.bg-info {
+            background-color: #52c364;
+            color: #fff;
+        }
+
+        /* Boutons */
+        .btn {
+            border-radius: 12px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+        .btn-warning {
+            background-color: #ff9900;
+            color: #fff;
+            border: none;
+        }
+        .btn-warning:hover {
+            background-color: #e68a00;
+        }
+        .btn-outline-danger {
+            border-radius: 12px;
+            border: 2px solid #c81127;
+            color: #c81127;
+            background: transparent;
+        }
+        .btn-outline-danger:hover {
+            background-color: #c81127;
+            color: #fff;
+        }
+        .btn-outline-primary {
+            border-radius: 12px;
+            border: 2px solid #667eea;
+            color: #667eea;
+            background: transparent;
+        }
+        .btn-outline-primary:hover {
+            background-color: #667eea;
+            color: #fff;
+        }
+
+        /* Titres */
+        h1.text-primary {
+            color: #ff6600;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.2);
+        }
+
+        /* Map */
+        #map {
+            border-radius: 0 0 20px 20px;
+        }
+    </style>
+{% endblock %}
+
 {% block body %}
     <div class="container my-5">
         <!-- Header -->
@@ -28,7 +134,7 @@
             <!-- Left column: informations + participants -->
             <div class="col-lg-8">
                 <div class="card shadow-sm rounded mb-4">
-                    <div class="card-header bg-primary text-white fw-bold">
+                    <div class="card-header text-white fw-bold">
                         <i class="bi bi-info-circle"></i> Informations
                     </div>
                     <div class="card-body">
@@ -50,7 +156,7 @@
                 </div>
 
                 <div class="card shadow-sm rounded mb-4">
-                    <div class="card-header bg-primary text-white fw-bold">
+                    <div class="card-header text-white fw-bold">
                         <i class="bi bi-people-fill"></i> Participants ({{ event.registrations|filter(r => r.workflowState in ['REGISTERED', 'NOTIFIED'])|length }}/{{ event.maxParticipant }})
                     </div>
                     <ul class="list-group list-group-flush">
@@ -72,11 +178,11 @@
             <div class="col-lg-4">
                 {% if event.place and event.place.gpsLatitude and event.place.gpsLongitude %}
                     <div class="card shadow-sm rounded mb-4">
-                        <div class="card-header bg-primary text-white fw-bold">
+                        <div class="card-header text-white fw-bold">
                             <i class="bi bi-map-fill"></i> Localisation
                         </div>
                         <div class="card-body p-0">
-                            <div id="map" style="height: 250px; width: 100%; border-bottom-left-radius: .375rem; border-bottom-right-radius: .375rem;"></div>
+                            <div id="map" style="height: 250px; width: 100%;"></div>
                         </div>
                     </div>
                 {% endif %}
@@ -113,37 +219,9 @@
                         </a>
                     {% endif %}
                 </div>
-
-
-                <style>
-        /* Cartes modernes */
-        .card {
-            border-radius: 12px;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-        .card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 12px 28px rgba(0,0,0,0.15);
-        }
-        .card-header {
-            font-size: 1rem;
-        }
-        .list-group-item {
-            font-size: 0.95rem;
-        }
-        .btn {
-            font-weight: 600;
-            transition: all 0.3s ease;
-        }
-        .btn:hover {
-            transform: translateY(-2px);
-        }
-
-        h1.text-primary {
-            color: #ff6600; /* change la couleur ici, ex: orange vif */
-            text-shadow: 1px 1px 3px rgba(0,0,0,0.2); /* légère ombre pour le relief */
-        }
-    </style>
+            </div> {# Fin col-lg-4 #}
+        </div> {# Fin row gy-4 #}
+    </div> {# Fin container my-5 #}
 {% endblock %}
 
 {% block javascripts %}

@@ -1,14 +1,30 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Mes événements{% endblock %}
+{% block title %}
+    {% if is_granted('ROLE_ADMIN') %}
+        Tous les événements
+    {% else %}
+        Mes événements
+    {% endif %}
+{% endblock %}
 
 {% block body %}
     <div class="container mt-4">
-        <h1 class="mb-4 text-center text-primary">Mes événements</h1>
+        <h1 class="mb-4 text-center text-primary">
+            {% if is_granted('ROLE_ADMIN') %}
+                Tous les événements
+            {% else %}
+                Mes événements
+            {% endif %}
+        </h1>
 
         {% if events is empty %}
             <div class="alert alert-info text-center">
-                Vous n'avez aucun événement en tant qu'organisateur.
+                {% if is_granted('ROLE_ADMIN') %}
+                    Aucun événement disponible.
+                {% else %}
+                    Vous n'avez aucun événement en tant qu'organisateur.
+                {% endif %}
             </div>
         {% else %}
             <div class="row g-4">
@@ -17,20 +33,28 @@
                         <div class="card shadow-sm h-100">
                             <div class="card-body d-flex flex-column">
                                 <h5 class="card-title">{{ e.name }}</h5>
+
                                 <p class="card-text mb-1"><strong>Date/heure:</strong> {{ e.startDateTime ? e.startDateTime|date('d/m/Y H:i') : '-' }}</p>
                                 <p class="card-text mb-1"><strong>Site:</strong> {{ e.site ? e.site.name : '-' }}</p>
                                 <p class="card-text mb-1"><strong>Lieu:</strong> {{ e.place ? e.place.name : '-' }}</p>
+
+                                {% if is_granted('ROLE_ADMIN') %}
+                                    <p class="card-text mb-1"><strong>Organisateur:</strong> {{ e.organizer ? e.organizer.username : '-' }}</p>
+                                {% endif %}
+
                                 <p class="card-text mb-1">
                                     <strong>État:</strong>
                                     <span class="badge
-                                    {% if e.state == 'Ouvert' %} bg-success
-                                    {% elseif e.state == 'Clôturé' %} bg-danger
-                                    {% else %} bg-secondary
-                                    {% endif %}">
-                                    {{ e.state }}
-                                </span>
+                                        {% if e.state == 'Ouvert' %} bg-success
+                                        {% elseif e.state == 'Clôturé' %} bg-danger
+                                        {% else %} bg-secondary
+                                        {% endif %}">
+                                        {{ e.state }}
+                                    </span>
                                 </p>
+
                                 <p class="card-text mb-3"><strong>Inscrits:</strong> {{ e.registrations|length }}/{{ e.maxParticipant ?? '-' }}</p>
+
                                 <div class="mt-auto">
                                     <a href="{{ path('event_manage', {id: e.id}) }}" class="btn btn-primary w-100">
                                         <i class="bi bi-pencil-square"></i> Gérer

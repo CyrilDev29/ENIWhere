@@ -41,7 +41,7 @@ class EventRepository extends ServiceEntityRepository
     //        ;
     //    }
 
-    public function searchByFilters(array $f, ?\App\Entity\User $user): array
+    public function searchByFilters(array $f, ?\App\Entity\User $user,bool $isAdmin = false): array
     {
         $qb = $this->createQueryBuilder('e')
             ->leftJoin('e.registrations', 'r')
@@ -78,12 +78,14 @@ class EventRepository extends ServiceEntityRepository
         }
 
         // Filtrage des événements archivés
-        $oneMonthAgo = (new \DateTime())->modify('-1 month');
-        $qb->andWhere('e.startDateTime >= :oneMonthAgo')
-            ->setParameter('oneMonthAgo', $oneMonthAgo);
-        $qb->andWhere('e.state != :archived')
-            ->setParameter('archived', 'ARCHIVED');
+        if (!$isAdmin) {
+            $oneMonthAgo = (new \DateTime())->modify('-1 month');
+            $qb->andWhere('e.startDateTime >= :oneMonthAgo')
+                ->setParameter('oneMonthAgo', $oneMonthAgo);
 
+            $qb->andWhere('e.state != :archived')
+                ->setParameter('archived', 'ARCHIVED');
+        }
 
         // Organisateur
         if (!empty($f['isOrganizer']) && $user) {

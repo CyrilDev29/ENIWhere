@@ -12,7 +12,9 @@
     {{ encore_entry_link_tags('app') }}
     {% block stylesheets %}{% endblock %}
 </head>
-<body class="d-flex flex-column min-vh-100">
+<body class="d-flex flex-column min-vh-100" style=" background: linear-gradient(135deg, #89f7fe, #66a6ff); !important;">
+
+
 
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
     <div class="container-fluid">
@@ -37,6 +39,8 @@
                         <li class="nav-item"><a class="nav-link" href="{{ path('admin_user_list') }}">Utilisateurs</a></li>
                         <li class="nav-item"><a class="nav-link" href="{{ path('admin_user_create') }}">Créer un utilisateur</a></li>
                         <li class="nav-item"><a class="nav-link" href="{{ path('admin_import_users') }}">Importer des utilisateurs</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{{ path('event_index') }}">Toutes les sorties</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{{ path('my_events') }}">Gerer les sorties</a></li>
 
                     {% elseif is_granted('ROLE_USER') %}
                         {# === USER : n'afficher que des pages non-admin (événements, profil) === #}
@@ -134,8 +138,12 @@
 {% endblock %}
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-{{ encore_entry_script_tags('app') }}
-{% block javascripts %}{% endblock %}
+
+    {% block javascripts %}
+        {{ encore_entry_script_tags('app') }}
+    {% endblock %}
+
+
 </body>
 
 </html>

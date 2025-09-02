@@ -2,10 +2,11 @@
 
 {% block title %}Gérer l'événement{% endblock %}
 
-{% block body %}
-    <div class="container mt-4">
 
-        {# Flash messages #}
+{% block body %}
+    <div class="container mt-5 p-4 bg-light rounded shadow-sm">
+
+        {# ===== Flash messages ===== #}
         {% for label, messages in app.flashes %}
             {% for message in messages %}
                 <div class="alert alert-{{ label }} alert-dismissible fade show" role="alert">
@@ -15,94 +16,74 @@
             {% endfor %}
         {% endfor %}
 
-        <h1 class="mb-4 text-center text-primary">Gérer : {{ event.name ?? ('Événement #' ~ event.id) }}</h1>
+        {# ===== Titre ===== #}
+        <h1 class="mb-5 text-center text-primary fw-bold border-bottom pb-3">
+            Gérer : {{ event.name ?? ('Événement #' ~ event.id) }}
+        </h1>
 
         {# ====== Actions workflow ====== #}
         <div class="mb-4 d-flex flex-wrap gap-2 justify-content-center">
             {% set state = event.state|upper %}
-            <form method="post" action="{{ path('event_publish', {id: event.id}) }}">
-                <input type="hidden" name="_token" value="{{ csrf_token('publish_event_' ~ event.id) }}">
-                <button class="btn btn-primary btn-sm" {% if state != 'CREATED' %}disabled{% endif %}>Publier</button>
-            </form>
 
-            <form method="post" action="{{ path('event_open_regs', {id: event.id}) }}">
-                <input type="hidden" name="_token" value="{{ csrf_token('open_event_' ~ event.id) }}">
-                <button class="btn btn-secondary btn-sm" {% if state != 'PUBLISHED' %}disabled{% endif %}>Ouvrir inscriptions</button>
-            </form>
+            {% set actions = [
+                { 'route': 'event_publish', 'label': 'Publier', 'class': 'primary', 'enabled': ['CREATED'] },
+                { 'route': 'event_open_regs', 'label': 'Ouvrir inscriptions', 'class': 'secondary', 'enabled': ['PUBLISHED'] },
+                { 'route': 'event_close_regs', 'label': 'Fermer inscriptions', 'class': 'warning', 'enabled': ['OPEN'] },
+                { 'route': 'event_start', 'label': 'Démarrer', 'class': 'info', 'enabled': ['CLOSED'] },
+                { 'route': 'event_finish', 'label': 'Terminer', 'class': 'success', 'enabled': ['ONGOING'] }
+            ] %}
 
-            <form method="post" action="{{ path('event_close_regs', {id: event.id}) }}">
-                <input type="hidden" name="_token" value="{{ csrf_token('close_event_' ~ event.id) }}">
-                <button class="btn btn-warning btn-sm" {% if state != 'OPEN' %}disabled{% endif %}>Fermer inscriptions</button>
-            </form>
+            {% for a in actions %}
+                <form method="post" action="{{ path(a.route, {id: event.id}) }}">
+                    <input type="hidden" name="_token" value="{{ csrf_token(a.route ~ '_' ~ event.id) }}">
+                    <button class="btn btn-{{ a.class }} btn-sm me-2 mb-2"
+                            {% if state not in a.enabled %}disabled{% endif %}>
+                        {{ a.label }}
+                    </button>
+                </form>
+            {% endfor %}
 
-            <form method="post" action="{{ path('event_start', {id: event.id}) }}">
-                <input type="hidden" name="_token" value="{{ csrf_token('start_event_' ~ event.id) }}">
-                <button class="btn btn-info btn-sm" {% if state != 'CLOSED' %}disabled{% endif %}>Démarrer</button>
-            </form>
-
-            <form method="post" action="{{ path('event_finish', {id: event.id}) }}">
-                <input type="hidden" name="_token" value="{{ csrf_token('finish_event_' ~ event.id) }}">
-                <button class="btn btn-success btn-sm" {% if state != 'ONGOING' %}disabled{% endif %}>Terminer</button>
-            </form>
-
-            <button class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#cancelModal-{{ event.id }}" {% if state in ['FINISHED','CANCELED'] %}disabled{% endif %}>
+            {# Bouton d'annulation #}
+            <button class="btn btn-danger btn-sm me-2 mb-2" data-bs-toggle="modal" data-bs-target="#cancelModal-{{ event.id }}"
+                    {% if state in ['FINISHED','CANCELED'] %}disabled{% endif %}>
                 Annuler
             </button>
         </div>
 
-        {# Modal d'annulation #}
+        {# ===== Modal d'annulation ===== #}
         <div class="modal fade" id="cancelModal-{{ event.id }}" tabindex="-1" aria-labelledby="cancelModalLabel-{{ event.id }}" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered">
-                <div class="modal-content">
+            <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+                <div class="modal-content border-danger rounded shadow">
                     <form method="post" action="{{ path('event_cancel', {id: event.id}) }}">
-                        <div class="modal-header">
+                        <div class="modal-header bg-danger text-white">
                             <h5 class="modal-title" id="cancelModalLabel-{{ event.id }}">Motif d’annulation</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Fermer"></button>
                         </div>
                         <div class="modal-body">
                             <input type="hidden" name="_token" value="{{ csrf_token('cancel_event_' ~ event.id) }}">
                             <div class="mb-3">
-                                <label for="cancel-reason-{{ event.id }}" class="form-label">Expliquez pourquoi :</label>
-                                <textarea id="cancel-reason-{{ event.id }}" name="reason" class="form-control" rows="4" required placeholder="Ex. météo, manque de participants..."></textarea>
+                                <label for="cancel-reason-{{ event.id }}" class="form-label fw-bold">Expliquez pourquoi :</label>
+                                <textarea id="cancel-reason-{{ event.id }}" name="reason" class="form-control" rows="4"
+                                          required placeholder="Ex. météo, manque de participants..."></textarea>
                             </div>
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Retour</button>
-                            <button type="submit" class="btn btn-danger">Confirmer</button>
+                            <button type="button" class="btn btn-secondary w-50" data-bs-dismiss="modal">Retour</button>
+                            <button type="submit" class="btn btn-danger w-50">Confirmer</button>
                         </div>
                     </form>
                 </div>
             </div>
         </div>
 
-        {# ====== Détails de l'événement ====== #}
-        <div class="card shadow-sm rounded mb-4">
-            <div class="card-body">
-                <h2 class="card-title mb-3">{{ event.name }}</h2>
-                <p><strong>Date de début :</strong> {{ event.startDateTime ? event.startDateTime|date('d/m/Y H:i') : '—' }}</p>
-                <p><strong>Date limite inscription :</strong> {{ event.registrationDeadline ? event.registrationDeadline|date('d/m/Y H:i') : '—' }}</p>
-                <p><strong>Durée :</strong> {{ event.duration is not null ? event.duration ~ ' h' : '—' }}</p>
-                <p><strong>Description :</strong> {{ event.description ?? '—' }}</p>
-                <p><strong>Lieu :</strong> {{ event.place ? event.place.name : 'Non défini' }}</p>
-                <p><strong>Adresse :</strong>
-                    {% if event.place %}
-                        {{ event.place.street ?? '—' }},
-                        {{ event.place.city ? event.place.city.name ~ ' ' ~ event.place.city.postalCode : '' }}
-                    {% else %} — {% endif %}
-                </p>
-                <p><strong>Organisateur :</strong> {{ event.organizer ? event.organizer.username : 'Inconnu' }}</p>
-                <p><strong>Participants :</strong> {{ event.registrations|length }} / {{ event.maxParticipant ?? '—' }}</p>
-            </div>
-        </div>
-
-        {# ====== Formulaire édition si défini ====== #}
-        {% if form is defined %}
-            <div class="card shadow-sm rounded mb-4 p-4">
-                <h3 class="mb-3">Modifier l'événement</h3>
+        {# ===== Formulaire édition si autorisé ===== #}
+        {% if canEdit %}
+            <div class="card shadow-sm rounded mb-4 p-4 border-primary">
+                <h3 class="mb-3 text-primary fw-bold">Modifier l'événement</h3>
                 {{ form_start(form, { attr: { novalidate: 'novalidate' } }) }}
                 {{ form_errors(form) }}
                 {{ form_widget(form) }}
-                <div class="mt-3 d-flex gap-2">
+                <div class="mt-3 d-flex gap-2 flex-wrap">
                     <button class="btn btn-primary">Enregistrer</button>
                     <a href="{{ path('event_manage', { id: event.id }) }}" class="btn btn-secondary">Annuler</a>
                 </div>
@@ -110,8 +91,7 @@
             </div>
         {% else %}
             <div class="d-flex gap-2 mb-4">
-                <a href="{{ path('event_edit', { id: event.id }) }}" class="btn btn-warning btn-sm">Modifier</a>
-                <a href="{{ path('event_index') }}" class="btn btn-secondary btn-sm">Retour</a>
+                <a href="{{ path('event_index') }}" class="btn btn-secondary btn-sm w-100 w-md-auto">Retour</a>
             </div>
         {% endif %}
 

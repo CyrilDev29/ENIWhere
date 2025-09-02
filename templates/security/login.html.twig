@@ -1,44 +1,142 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Log in!{% endblock %}
+{% block title %}Log in{% endblock %}
+
+{% block stylesheets %}
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Poppins', sans-serif;
+
+        }
+
+        /* Conteneur parent pour centrer le formulaire */
+        .form-wrapper {
+            display: flex;
+            justify-content: center; /* centre horizontalement */
+            align-items: center;     /* centre verticalement */
+            min-height: 100vh;       /* prend toute la hauteur */
+        }
+
+        form {
+            background: #fff;
+            border-radius: 20px;
+            padding: 50px 40px;
+            width: 150%;
+            max-width: 500px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        form:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 30px 60px rgba(0,0,0,0.2);
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 40px;
+            font-weight: 700;
+            font-size: 28px;
+            color: #4c62b6;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 14px 15px;
+            margin-bottom: 20px;
+            border-radius: 12px;
+            border: 1px solid #ddd;
+            transition: border 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .form-control:focus {
+            border-color: #6074cf;
+            box-shadow: 0 0 10px rgba(102,126,234,0.3);
+            outline: none;
+        }
+
+        a {
+            display: block;
+            margin-bottom: 20px;
+            font-size: 14px;
+            color: #667eea;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        a:hover {
+            color: #5a67d8;
+        }
+
+        .btn-primary {
+            width: 100%;
+            background: #667eea;
+            border: none;
+            padding: 14px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 16px;
+            color: #101112;
+            cursor: pointer;
+            transition: background 0.3s ease, transform 0.2s ease;
+        }
+
+        .btn-primary:hover {
+            background: #5a67d8;
+            transform: translateY(-2px);
+        }
+
+        .alert {
+            border-radius: 12px;
+            padding: 12px 15px;
+            margin-bottom: 20px;
+        }
+    </style>
+{% endblock %}
 
 {% block body %}
-<form method="post">
-    {% if error %}
-        <div class="alert alert-danger">
-            {% if error.messageKey == 'Invalid credentials.' %}
-                Email ou mot de passe incorrect.
-            {% elseif error.messageKey == 'Account is disabled.' %}
-                Votre compte est désactivé. Contactez l’administrateur.
-            {% else %}
-                {{ error.messageKey|trans(error.messageData, 'security') }}
+    <div class="form-wrapper">
+        <form method="post">
+            {% if error %}
+                <div class="alert alert-danger">
+                    {% if error.messageKey == 'Invalid credentials.' %}
+                        Email ou mot de passe incorrect.
+                    {% elseif error.messageKey == 'Account is disabled.' %}
+                        Votre compte est désactivé. Contactez l’administrateur.
+                    {% else %}
+                        {{ error.messageKey|trans(error.messageData, 'security') }}
+                    {% endif %}
+                </div>
             {% endif %}
-        </div>
-    {% endif %}
 
-    {% if app.user %}
-        <div class="mb-3">
-            You are logged in as {{ app.user.userIdentifier }}, <a href="{{ path('app_logout') }}">Logout</a>
-        </div>
-    {% endif %}
+            {% if app.user %}
+                <div class="mb-3">
+                    You are logged in as {{ app.user.userIdentifier }}, <a href="{{ path('app_logout') }}">Logout</a>
+                </div>
+            {% endif %}
 
-    <h1 class="h3 mb-3 font-weight-normal">Please sign in</h1>
-    <label for="inputEmail">Email</label>
-    <input type="email" value="{{ last_username }}" name="email" id="inputEmail" class="form-control" autocomplete="email" required autofocus>
-    <label for="inputPassword">Password</label>
-    <input type="password" name="password" id="inputPassword" class="form-control" autocomplete="current-password" required>
-    <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
+            <h1>Sign in</h1>
 
-    <div class="checkbox mb-3">
-        <label>
-            <input type="checkbox" name="_remember_me"> Remember me
-        </label>
+            <label for="inputEmail">Email</label>
+            <input type="email" value="{{ last_username }}" name="email" id="inputEmail" class="form-control" autocomplete="email" required autofocus>
+
+            <label for="inputPassword">Password</label>
+            <input type="password" name="password" id="inputPassword" class="form-control" autocomplete="current-password" required>
+
+            <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
+
+            <div class="checkbox mb-3">
+                <label>
+                    <input type="checkbox" name="_remember_me"> Remember me
+                </label>
+            </div>
+
+            <a href="{{ path('app_forgot_password_request') }}">Mot de passe oublié ?</a>
+
+            <button class="btn btn-primary" type="submit">
+                Sign in
+            </button>
+        </form>
     </div>
-    <br>
-    <a href="{{ path('app_forgot_password_request') }}">Mot de passe oublié ?</a>
-
-    <button class="btn btn-lg btn-primary" type="submit">
-        Sign in
-    </button>
-</form>
 {% endblock %}
