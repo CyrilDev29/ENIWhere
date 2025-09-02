@@ -25,7 +25,7 @@ final class CityController extends AbstractController
         ]);
     }
 
-    #[Route('/cities/new', name: 'new', methods: ['GET', 'POST'])]
+    #[Route('/new', name: 'new', methods: ['GET', 'POST'])]
     public function new(Request $request, EntityManagerInterface $em): Response
     {
         $city = new City();
@@ -40,7 +40,7 @@ final class CityController extends AbstractController
             return $this->redirectToRoute('city_index');
         }
 
-        return $this->render('city/new.html.twig', [
+        return $this->render('city/newCity.html.twig', [
             'form' => $form->createView()
         ]);
     }
