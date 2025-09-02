@@ -29,9 +29,9 @@ final class EventController extends AbstractController
     {
         $form = $this->createForm(\App\Form\EventFilterType::class);
         $form->handleRequest($request);
-
+        $isAdmin = $this->isGranted('ROLE_ADMIN');
         $filters = $form->getData() ?? [];
-        $events  = $eventRepository->searchByFilters($filters, $this->getUser());
+        $events  = $eventRepository->searchByFilters($filters, $this->getUser(), $isAdmin);
 
         return $this->render('event/index.html.twig', [
             'events'     => $events,
@@ -125,20 +125,51 @@ final class EventController extends AbstractController
     public function myEvents(EventRepository $repo): Response
     {
         $user = $this->getUser();
-        $events = $repo->findBy(['organizer' => $user], ['startDateTime' => 'ASC']);
+
+        if ($this->isGranted('ROLE_ADMIN')) {
+            $events = $repo->findBy([], ['startDateTime' => 'ASC']);
+        } else {
+            $events = $repo->findBy(['organizer' => $user], ['startDateTime' => 'ASC']);
+        }
+
         return $this->render('event/my_events.html.twig', ['events' => $events]);
     }
 
     // PAGE DE GESTION
     #[Route('/manage/{id}', name: 'event_manage')]
-    public function manage(Event $event): Response
-    {
-        if (!$this->isGranted('ROLE_ADMIN') && $this->getUser() !== $event->getOrganizer()) {
+    public function manage(
+        Event $event,
+        Request $request,
+        EntityManagerInterface $em
+    ): Response {
+        $user = $this->getUser();
+
+        if (!$this->isGranted('ROLE_ADMIN') && $user !== $event->getOrganizer()) {
             throw $this->createAccessDeniedException('Vous ne pouvez pas gérer cet événement.');
         }
 
-        return $this->render('event/manage.html.twig', ['event' => $event]);
+        $canEdit = $this->isGranted('ROLE_ADMIN') || $user === $event->getOrganizer();
+
+
+        $form = null;
+        if ($canEdit) {
+            $form = $this->createForm(\App\Form\EventType::class, $event);
+            $form->handleRequest($request);
+
+            if ($form->isSubmitted() && $form->isValid()) {
+                $em->flush();
+                $this->addFlash('success', "Événement mis à jour !");
+                return $this->redirectToRoute('event_manage', ['id' => $event->getId()]);
+            }
+        }
+
+        return $this->render('event/manage.html.twig', [
+            'event' => $event,
+            'form' => $form,
+            'canEdit' => $canEdit,
+        ]);
     }
+
 
     // ---------- TRANSITIONS WORKFLOW (POST) ----------
 
@@ -296,7 +327,7 @@ final class EventController extends AbstractController
             $event->setPlace($place);
 
             $em->flush();
-            $this->addFlash('success', 'Événement mis à jour ✅');
+            $this->addFlash('success', 'Événement mis à jour ');
             return $this->redirectToRoute('event_manage', ['id' => $event->getId()]);
         }
 
@@ -308,24 +339,5 @@ final class EventController extends AbstractController
         ]);
     }
 
-    #[Route('/adminView', name: 'event_admin_index')]
-    #[IsGranted('ROLE_ADMIN')]
-    public function adminIndex(Request $request, EventRepository $repo): Response
-    {
-        // Récup des filtres GET
-        $status = strtoupper((string)$request->query->get('status', 'ALL'));
-        $q      = trim((string)$request->query->get('q', ''));
-
-        // Données
-        $stats  = $repo->countByWorkflowstate();
-        $events = $repo->findForAdmin($status, $q, 500);
-
-        return $this->render('event/admin.html.twig', [
-            'status' => $status,
-            'q'      => $q,
-            'stats'  => $stats,
-            'events' => $events,
-        ]);
-    }
 
 }

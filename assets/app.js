@@ -1,6 +1,8 @@
 import './styles/app.css';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
+// assets/app.js
+import './js/event-form.js';
 
 document.addEventListener('DOMContentLoaded', () => {
     const mapEl = document.getElementById('map');

@@ -8,89 +8,160 @@
     {% endif %}
 {% endblock %}
 
+{% block stylesheets %}
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #76f0f1, #9b79e0);
+        }
+
+        .form-wrapper {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .form-card {
+            background: #fff;
+            border-radius: 20px;
+            padding: 40px 35px;
+            width: 100%;
+            max-width: 650px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .form-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 30px 60px rgba(0,0,0,0.2);
+        }
+
+        .form-card h1 {
+            text-align: center;
+            margin-bottom: 40px;
+            font-weight: 700;
+            font-size: 28px;
+            color: #4c62b6;
+        }
+
+        .form-control, .form-select {
+            border-radius: 12px;
+            padding: 14px 15px;
+            border: 1px solid #ddd;
+            transition: border 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 10px rgba(102,126,234,0.3);
+            outline: none;
+        }
+
+        .btn-primary {
+            width: 100%;
+            background: #667eea;
+            border: none;
+            padding: 14px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 16px;
+            color: #fff;
+            cursor: pointer;
+            transition: background 0.3s ease, transform 0.2s ease;
+        }
+
+        .btn-primary:hover {
+            background: #5a67d8;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            width: 100%;
+            background: #c13737;
+            border: none;
+            padding: 14px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 16px;
+            color: #fff;
+            cursor: pointer;
+            transition: background 0.3s ease, transform 0.2s ease;
+        }
+
+        .btn-secondary:hover {
+            background: #999999;
+            transform: translateY(-2px);
+        }
+
+        .current-photo {
+            width: 140px;
+            height: 105px;
+            object-fit: cover;
+            border-radius: 12px;
+            border: 1px solid #ddd;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+        }
+
+        .alert {
+            border-radius: 12px;
+            padding: 12px 15px;
+            margin-bottom: 20px;
+        }
+    </style>
+{% endblock %}
+
 {% block body %}
-    <div class="container mt-5">
-        <h1 class="mb-4">
-            {% if is_admin %}
-                Modifier l'utilisateur {{ form.vars.data.username }}
-            {% else %}
-                Modifier mon profil
-            {% endif %}
-        </h1>
+    <div class="form-wrapper">
+        <div class="form-card">
+            <h1>
+                {% if is_admin %}
+                    Modifier l'utilisateur {{ form.vars.data.username }}
+                {% else %}
+                    Modifier mon profil
+                {% endif %}
+            </h1>
 
-        {# --- Flash messages --- #}
-        {% for label, messages in app.flashes %}
-            {% for message in messages %}
-                <div class="alert alert-{{ label }} alert-dismissible fade show" role="alert">
-                    {{ message }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
+            {# Flash messages #}
+            {% for label, messages in app.flashes %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ label }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
             {% endfor %}
-        {% endfor %}
 
-        {{ form_start(form, {'attr': {'class': 'row g-3 needs-validation', 'novalidate': 'novalidate'}}) }}
+            {{ form_start(form, {'attr': {'class': 'row g-3 needs-validation', 'novalidate': 'novalidate'}}) }}
 
-        <div class="col-md-6">
-            {{ form_row(form.lastName, {'attr': {'class': 'form-control'}}) }}
-        </div>
-        <div class="col-md-6">
-            {{ form_row(form.firstName, {'attr': {'class': 'form-control'}}) }}
-        </div>
-        <div class="col-md-6">
-            {{ form_row(form.username, {'attr': {'class': 'form-control'}}) }}
-        </div>
-        <div class="col-md-6">
-            {{ form_row(form.email, {'attr': {'class': 'form-control'}}) }}
-        </div>
-        <div class="col-md-6">
-            {{ form_row(form.phoneNumber, {'attr': {'class': 'form-control'}}) }}
-        </div>
-        <div class="col-md-6">
-            {{ form_row(form.plainPassword, {'label': 'Mot de passe', 'attr': {'class': 'form-control'}}) }}
-        </div>
+            <div class="col-md-6">{{ form_row(form.lastName, {'attr': {'class': 'form-control'}}) }}</div>
+            <div class="col-md-6">{{ form_row(form.firstName, {'attr': {'class': 'form-control'}}) }}</div>
+            <div class="col-md-6">{{ form_row(form.username, {'attr': {'class': 'form-control'}}) }}</div>
+            <div class="col-md-6">{{ form_row(form.email, {'attr': {'class': 'form-control'}}) }}</div>
+            <div class="col-md-6">{{ form_row(form.phoneNumber, {'attr': {'class': 'form-control'}}) }}</div>
+            <div class="col-md-6">{{ form_row(form.plainPassword, {'label': 'Mot de passe', 'attr': {'class': 'form-control'}}) }}</div>
 
-        {% if form.site is defined %}
-            <div class="col-md-6">
-                {{ form_row(form.site, {'attr': {'class': 'form-select'}}) }}
-            </div>
-        {% endif %}
-
-        {% if form.roles is defined %}
-            <div class="col-md-12">
-                {{ form_row(form.roles) }}
-            </div>
-        {% endif %}
-
-        {% if form.vars.data.photoName %}
-            <div class="col-md-6 mb-3">
-                <label class="form-label">Photo actuelle :</label>
-                <div>
-                    <img src="{{ asset('uploads/photos/' ~ form.vars.data.photoName) }}"
-                         alt="Photo actuelle"
-                         style="width: 120px; height: 90px; object-fit: cover; border: 1px solid #ddd;">
+            {% if form.site is defined %}
+                <div class="col-md-6">{{ form_row(form.site, {'attr': {'class': 'form-select'}}) }}</div>
+            {% endif %}
+            {% if form.roles is defined %}
+                <div class="col-12">{{ form_row(form.roles) }}</div>
+            {% endif %}
+            {% if form.vars.data.photoName %}
+                <div class="col-md-6 text-center">
+                    <label>Photo actuelle :</label>
+                    <img src="{{ asset('uploads/photos/' ~ form.vars.data.photoName) }}" class="current-photo mt-2">
                 </div>
+            {% endif %}
+
+            {{ form_rest(form) }}
+
+            <div class="col-12 mt-4 d-flex justify-content-center gap-3 flex-wrap">
+                <button type="submit" class="btn btn-primary">Enregistrer</button>
+                <a href="{{ is_admin ? path('admin_user_list') : path('profile_show') }}" class="btn btn-secondary">Annuler</a>
             </div>
-        {% endif %}
 
-        {{ form_rest(form) }}
-
-        <div class="col-12 mt-3 d-flex">
-            <button type="submit" class="btn btn-primary me-2">Enregistrer</button>
-            <a href="{{ is_admin ? path('admin_user_list') : path('profile_show') }}" class="btn btn-secondary">Annuler</a>
+            {{ form_end(form) }}
         </div>
-
-        {{ form_end(form) }}
-
-        {% if is_admin %}
-            <div class="col-12 mt-3">
-                <form method="post"
-                      action="{{ path('admin_user_delete', {id: user.id}) }}"
-                      onsubmit="return confirm('Voulez-vous vraiment supprimer cet utilisateur ?');"
-                      style="display:inline;">
-                    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ user.id) }}">
-                    <button class="btn btn-danger">Supprimer</button>
-                </form>
-            </div>
-        {% endif %}
     </div>
 {% endblock %}

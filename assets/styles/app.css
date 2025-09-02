@@ -1,5 +1,6 @@
-body {
-    background-color: #1E90FF;
+html, body {
+    height: 100%;
+    background-color: rgba(163, 135, 235, 0.25); /* violet semi-transparent */
     color: white;
 }
 
