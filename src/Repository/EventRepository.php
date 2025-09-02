@@ -81,6 +81,9 @@ class EventRepository extends ServiceEntityRepository
         $oneMonthAgo = (new \DateTime())->modify('-1 month');
         $qb->andWhere('e.startDateTime >= :oneMonthAgo')
             ->setParameter('oneMonthAgo', $oneMonthAgo);
+        $qb->andWhere('e.state != :archived')
+            ->setParameter('archived', 'ARCHIVED');
+
 
         // Organisateur
         if (!empty($f['isOrganizer']) && $user) {
@@ -90,8 +93,9 @@ class EventRepository extends ServiceEntityRepository
 
         // Inscrit ou non inscrit
         if (!empty($f['isRegistered']) && $user && empty($f['isNotRegistered'])) {
-            $qb->andWhere(':user MEMBER OF e.registrations')
-                ->setParameter('user', $user);
+            $qb->andWhere(':user MEMBER OF e.registrations AND r.workflowState IN (:states)' )
+                ->setParameter('user', $user)
+                ->setParameter('states', ['REGISTERED', 'NOTIFIED']);
         }
         if (!empty($f['isNotRegistered']) && $user && empty($f['isRegistered'])) {
             $qb->andWhere(':user NOT MEMBER OF e.registrations')
