@@ -45,15 +45,18 @@
                         <li class="nav-item"><a class="nav-link" href="{{ path('my_events') }}">Mes sorties</a></li>
                         <li class="nav-item"><a class="nav-link" href="{{ path('city_new') }}">Creer une ville</a></li>
                         <li class="nav-item"><a class="nav-link" href="{{ path('my_registrations') }}">Mes inscriptions</a></li>
+
                     {% endif %}
 
                     <li class="nav-item">
                         <a class="nav-link" href="{{ path('app_logout') }}">Se déconnecter</a>
+
                     </li>
 
                 {% else %}
                     {# Visiteur #}
                     <li class="nav-item"><a class="nav-link" href="{{ path('app_login') }}">Se connecter</a></li>
+                    <a class="nav-link" href="{{ path('app_register') }}">Creer un compte</a>
                 {% endif %}
 
             </ul>

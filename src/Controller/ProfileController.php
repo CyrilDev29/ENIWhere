@@ -3,37 +3,41 @@
 namespace App\Controller;
 
 use App\Entity\User;
-use App\Form\ProfileFormType;
 use App\Form\RegistrationFormType;
+use App\Helper\UserRegistration;
+use App\Security\EmailVerifier;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Mailer\MailerInterface;
+use Symfony\Component\Mime\Address;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\String\Slugger\SluggerInterface;
-use Twig\Profiler\Profile;
+
 
 final class ProfileController extends AbstractController
 {
+
+    public function __construct(private EmailVerifier $emailVerifier)
+    {
+    }
     #[IsGranted('ROLE_USER')]
     #[Route('/profile/edit', name: 'profile_edit')]
     public function edit(Request $request, EntityManagerInterface $em, UserPasswordHasherInterface $passwordHasher, SluggerInterface $slugger): Response
     {
         $user = $this->getUser();
-
         $form = $this->createForm(RegistrationFormType::class, $user);
-
         $form->handleRequest($request);
-
         if ($form->isSubmitted() && $form->isValid()) {
             $plainPassword = $form->get('plainPassword')->getData();
             if ($plainPassword) {
                 $user->setPassword($passwordHasher->hashPassword($user, $plainPassword));
             }
+
             $photoFile = $form->get('photo')->getData();
 
             if ($photoFile) {
@@ -60,8 +64,8 @@ final class ProfileController extends AbstractController
             }
 
             $em->persist($user);
-            $em->flush();
 
+            $em->flush();
             $this->addFlash('success', 'Votre profil a été mis à jour.');
 
             return $this->redirectToRoute('profile_show');
@@ -91,4 +95,48 @@ final class ProfileController extends AbstractController
             'user' => $user,
         ]);
     }
+
+
+    #[Route('/register', name: 'app_register')]
+    public function register(
+        Request $request,
+        UserPasswordHasherInterface $userPasswordHasher,
+        EntityManagerInterface $entityManager,
+        SluggerInterface $slugger,
+        UserRegistration $userRegistration
+    ): Response {
+        $user = new User();
+        $form = $this->createForm(RegistrationFormType::class, $user, [
+            'is_registration' => true,
+            'is_admin' => false,
+        ]);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $plainPassword = $form->get('plainPassword')->getData();
+            $photoFile = $form->get('photo')->getData();
+
+            $photoDir = $this->getParameter('kernel.project_dir') . '/public/uploads/photos';
+
+            $userRegistration->registerUser(
+                $user,
+                $plainPassword,
+                $userPasswordHasher,
+                $entityManager,
+                $slugger,
+                $photoDir,
+                $photoFile
+            );
+
+            $this->addFlash('success', 'Votre compte a été créé. Vérifiez votre email pour activer votre compte.');
+
+            return $this->redirectToRoute('app_login');
+        }
+
+        return $this->render('registration/register.html.twig', [
+            'registrationForm' => $form,
+        ]);
+    }
+
+
 }

@@ -60,6 +60,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(length: 15, nullable: true)]
     private ?string $phoneNumber = null;
 
+    #[ORM\Column]
+    private bool $isVerified = false;
+
     #[ORM\Column(length: 255)]
     #[Assert\NotBlank(message: "Le pseudo est obligatoire.")]
     private ?string $username = null;
@@ -356,5 +359,15 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
         return $this;
     }
+    public function isVerified(): bool
+    {
+        return $this->isVerified;
+    }
 
+    public function setIsVerified(bool $isVerified): static
+    {
+        $this->isVerified = $isVerified;
+
+        return $this;
+    }
 }

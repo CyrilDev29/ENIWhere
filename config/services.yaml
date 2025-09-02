@@ -6,6 +6,10 @@
 parameters:
 
 services:
+    App\Helper\UserRegistration:
+        arguments:
+            $projectDir: '%kernel.project_dir%'
+            $slugger: '@Symfony\Component\String\Slugger\SluggerInterface'
     # default configuration for services in *this* file
     _defaults:
         autowire: true      # Automatically injects dependencies in your services.
