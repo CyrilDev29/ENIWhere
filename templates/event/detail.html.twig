@@ -81,41 +81,41 @@
                     </div>
                 {% endif %}
 
-                <div class="card shadow-sm rounded">
-                    <div class="card-body text-center">
-                        {% if app.user %}
-                            {% set inscrit = false %}
-                            {% for reg in event.registrations %}
-                                {% if reg.participant and reg.participant.id == app.user.id and reg.workflowState in ['REGISTERED', 'NOTIFIED'] %}
-                                    {% set inscrit = true %}
-                                {% endif %}
-                            {% endfor %}
-
-                            {% if not inscrit %}
-                                <a href="{{ path('event_inscription', {'id': event.id}) }}" class="btn btn-warning btn-lg w-100 mb-2">
-                                    <i class="bi bi-check-circle-fill"></i> S'inscrire
-                                </a>
-                            {% else %}
-                                <div class="alert alert-success py-2 mb-2">
-                                    <i class="bi bi-check-lg"></i> Vous êtes inscrit
-                                </div>
-                                <a href="{{ path('event_desistement', {'id': event.id}) }}" class="btn btn-outline-danger btn-lg w-100">
-                                    <i class="bi bi-x-circle-fill"></i> Se désister
-                                </a>
+                <div class="card-body text-center">
+                    {% if app.user %}
+                        {% set inscrit = false %}
+                        {% for reg in event.registrations %}
+                            {% if reg.participant and reg.participant.id == app.user.id and reg.workflowState in ['REGISTERED', 'NOTIFIED'] %}
+                                {% set inscrit = true %}
                             {% endif %}
-                        {% else %}
-                            <p class="text-muted mb-3">Vous devez être connecté</p>
-                            <a href="{{ path('app_login') }}" class="btn btn-outline-primary btn-lg w-100">
-                                <i class="bi bi-box-arrow-in-right"></i> Se connecter
-                            </a>
-                        {% endif %}
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+                        {% endfor %}
 
-    <style>
+                        {% if not inscrit and event.state == 'OPEN' %}
+                            <a href="{{ path('event_inscription', {'id': event.id}) }}" class="btn btn-warning btn-lg w-100 mb-2">
+                                <i class="bi bi-check-circle-fill"></i> S'inscrire
+                            </a>
+                        {% elseif inscrit %}
+                            <div class="alert alert-success py-2 mb-2">
+                                <i class="bi bi-check-lg"></i> Vous êtes inscrit
+                            </div>
+                            <a href="{{ path('event_desistement', {'id': event.id}) }}" class="btn btn-outline-danger btn-lg w-100">
+                                <i class="bi bi-x-circle-fill"></i> Se désister
+                            </a>
+                        {% else %}
+                            <div class="alert alert-secondary py-2 mb-2">
+                                Les inscriptions sont fermées pour cet événement.
+                            </div>
+                        {% endif %}
+                    {% else %}
+                        <p class="text-muted mb-3">Vous devez être connecté</p>
+                        <a href="{{ path('app_login') }}" class="btn btn-outline-primary btn-lg w-100">
+                            <i class="bi bi-box-arrow-in-right"></i> Se connecter
+                        </a>
+                    {% endif %}
+                </div>
+
+
+                <style>
         /* Cartes modernes */
         .card {
             border-radius: 12px;

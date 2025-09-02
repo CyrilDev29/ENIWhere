@@ -16,7 +16,9 @@ security:
         main:
             lazy: true
             provider: app_user_provider
+            user_checker: App\Security\UserChecker
             custom_authenticator: App\Security\LoginFormAuthenticator
+
             logout:
                 path: app_logout
                 # where to redirect after logout
@@ -29,6 +31,8 @@ security:
                 # by default, the feature is enabled by checking a checkbox in the
                 # login form, uncomment the following line to always enable it.
                 #always_remember_me: true
+                    # pour limiter le nombre de tentetif
+
 
             # activate different ways to authenticate
             # https://symfony.com/doc/current/security.html#the-firewall
@@ -40,11 +44,14 @@ security:
     # Note: Only the *first* access control that matches will be used
     access_control:
         # === Routes publiques ===
-        - { path: ^/(login|register|reset-password), roles: PUBLIC_ACCESS }
+        - { path: ^/(login|register|reset-password|verify/email), roles: PUBLIC_ACCESS }
         - { path: ^/$, roles: PUBLIC_ACCESS }
 
         # === Zone admin ===
         - { path: ^/admin, roles: ROLE_ADMIN }
+
+        # === Zone utilisateur connecté ===
+        - { path: ^/, roles: ROLE_USER }
 
         # === Zone utilisateur connecté ===
         - { path: ^/, roles: ROLE_USER }

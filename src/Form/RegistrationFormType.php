@@ -86,18 +86,20 @@ class RegistrationFormType extends AbstractType
                     ]),
                     ...($isRegistration ? [new NotBlank(['message' => 'Veuillez entrer un mot de passe'])] : []),
                 ],
+
+            ])
+            ->add('site', EntityType::class, [
+                'class' => Site::class,
+                'choice_label' => 'name',
+                'placeholder' => 'Choisir un site',
+                'required' => false,
             ]);
 
 
         if ($isAdmin) {
 
             $builder
-                ->add('site', EntityType::class, [
-                    'class' => Site::class,
-                    'choice_label' => 'name',
-                    'placeholder' => 'Choisir un site',
-                    'required' => false,
-                ])
+
                 ->add('roles', ChoiceType::class, [
                     'choices' => [
                         'Utilisateur' => 'ROLE_USER',
