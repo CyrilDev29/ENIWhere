@@ -87,6 +87,7 @@
                             <li><a href="{{ path('admin_user_list') }}" class="text-light text-decoration-none">Utilisateurs</a></li>
                             <li><a href="{{ path('admin_user_create') }}" class="text-light text-decoration-none">Créer un utilisateur</a></li>
                             <li><a href="{{ path('admin_import_users') }}" class="text-light text-decoration-none">Importer des utilisateurs</a></li>
+                            <li><a href="{{ path('event_index') }}" class="text-light text-decoration-none">Toutes les sorties</a></li>
 
                         {% elseif is_granted('ROLE_USER') %}
                             {# === USER : uniquement pages non-admin === #}
@@ -136,4 +137,5 @@
 {{ encore_entry_script_tags('app') }}
 {% block javascripts %}{% endblock %}
 </body>
+
 </html>
