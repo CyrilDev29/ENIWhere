@@ -3,126 +3,131 @@
 {% block title %}Administration — Événements{% endblock %}
 
 {% block body %}
-    <h1 class="mb-4">Administration — Événements</h1>
+    <div class="container mt-4">
+        <h1 class="mb-4">Administration — Événements</h1>
 
-    {# ---- Résumé / KPI ---- #}
-    <div class="row g-3 mb-4">
-        {% set colors = {
-            'CREATED':'secondary','PUBLISHED':'primary',
-            'REGISTRATION_OPEN':'info','REGISTRATION_CLOSED':'warning',
-            'ONGOING':'dark','FINISHED':'success','CANCELED':'danger',
-            'ARCHIVED':'secondary'
-        } %}
-        {% for key,label in {
-            'CREATED':'Créés',
-            'PUBLISHED':'Publiés',
-            'REGISTRATION_OPEN':'Inscriptions ouvertes',
-            'REGISTRATION_CLOSED':'Inscriptions fermées',
-            'ONGOING':'En cours',
-            'FINISHED':'Terminés',
-            'CANCELED':'Annulés',
-            'ARCHIVED':'Archivés'
-        } %}
-            <div class="col-12 col-sm-6 col-md-4 col-lg-3">
-                <div class="card shadow-sm">
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <strong>{{ label }}</strong>
-                            <span class="badge bg-{{ colors[key] }}">{{ stats[key] ?? 0 }}</span>
+        {# ---- Résumé / KPI ---- #}
+        <div class="row g-3 mb-4">
+            {% set colors = {
+                'CREATED':'secondary','PUBLISHED':'primary',
+                'REGISTRATION_OPEN':'info','REGISTRATION_CLOSED':'warning',
+                'ONGOING':'dark','FINISHED':'success','CANCELED':'danger',
+                'ARCHIVED':'secondary'
+            } %}
+            {% for key,label in {
+                'CREATED':'Créés',
+                'PUBLISHED':'Publiés',
+                'REGISTRATION_OPEN':'Inscriptions ouvertes',
+                'REGISTRATION_CLOSED':'Inscriptions fermées',
+                'ONGOING':'En cours',
+                'FINISHED':'Terminés',
+                'CANCELED':'Annulés',
+                'ARCHIVED':'Archivés'
+            } %}
+                <div class="col-12 col-sm-6 col-md-4 col-lg-3">
+                    <div class="card shadow-sm h-100">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <strong>{{ label }}</strong>
+                                <span class="badge rounded-pill bg-{{ colors[key] }}-subtle text-{{ colors[key] }}">
+                  {{ stats[key] ?? 0 }}
+                </span>
+                            </div>
+                            <a class="small d-block mt-2" href="{{ path('event_admin_index', {status: key}) }}">Voir</a>
                         </div>
-                        <a class="small d-block mt-2" href="{{ path('event_admin_index', {status: key}) }}">Voir</a>
                     </div>
                 </div>
-            </div>
-        {% endfor %}
-    </div>
-
-    {# ---- Filtres ---- #}
-    <form method="get" class="row g-2 align-items-end mb-3">
-        <div class="col-sm-4 col-md-3">
-            <label class="form-label">Statut</label>
-            <select name="status" class="form-select">
-                {% set options = {
-                    'ALL':'Tous',
-                    'CREATED':'CREATED',
-                    'PUBLISHED':'PUBLISHED',
-                    'REGISTRATION_OPEN':'REGISTRATION_OPEN',
-                    'REGISTRATION_CLOSED':'REGISTRATION_CLOSED',
-                    'ONGOING':'ONGOING',
-                    'FINISHED':'FINISHED',
-                    'CANCELED':'CANCELED',
-                    'ARCHIVED':'ARCHIVED'
-                } %}
-                {% for val,lab in options %}
-                    <option value="{{ val }}" {% if status == val %}selected{% endif %}>{{ lab }}</option>
-                {% endfor %}
-            </select>
-        </div>
-        <div class="col-sm-6 col-md-5">
-            <label class="form-label">Recherche</label>
-            <input type="text" class="form-control" name="q" value="{{ q }}" placeholder="Nom de l'événement, organisateur, email…">
-        </div>
-        <div class="col-sm-2 col-md-2">
-            <button class="btn btn-primary w-100">Filtrer</button>
-        </div>
-        <div class="col-sm-12 col-md-2">
-            <a class="btn btn-outline-secondary w-100" href="{{ path('event_admin_index') }}">Réinitialiser</a>
-        </div>
-    </form>
-
-    {# ---- Table ---- #}
-    <div class="table-responsive">
-        <table class="table table-striped align-middle">
-            <thead>
-            <tr>
-                <th>#</th>
-                <th>Événement</th>
-                <th>Début</th>
-                <th>Statut</th>
-                <th>Site</th>
-                <th>Organisateur</th>
-                <th>Participants</th>
-                <th class="text-end">Actions</th>
-            </tr>
-            </thead>
-            <tbody>
-            {% for e in events %}
-                {% set ws = (e.workflowstate ?? '')|upper %}
-                {% set badge = {
-                    'CREATED':'secondary','PUBLISHED':'primary',
-                    'REGISTRATION_OPEN':'info','REGISTRATION_CLOSED':'warning',
-                    'ONGOING':'dark','FINISHED':'success','CANCELED':'danger'
-                }[ws] ?? 'secondary' %}
-                <tr>
-                    <td>{{ e.id }}</td>
-                    <td>
-                        <div class="fw-semibold">{{ e.name }}</div>
-                        <div class="text-muted small">{{ e.place ? e.place.name : '—' }}</div>
-                    </td>
-                    <td>
-                        {% if e.startDateTime %}
-                            {{ e.startDateTime|date('d/m/Y H:i') }}
-                        {% else %} — {% endif %}
-                    </td>
-                    <td>
-                        <span class="badge bg-{{ badge }}">{{ ws }}</span>
-                    </td>
-                    <td>{{ e.site ? e.site.name : '—' }}</td>
-                    <td>{{ e.organizer ? e.organizer.username : '—' }}</td>
-                    <td>
-                        {% set count = e.registrations|length %}
-                        {{ count }}{% if e.maxParticipant %} / {{ e.maxParticipant }}{% endif %}
-                    </td>
-                    <td class="text-end">
-                        <a href="{{ path('event_manage', {id: e.id}) }}" class="btn btn-sm btn-outline-primary">Gérer</a>
-                    </td>
-                </tr>
-            {% else %}
-                <tr>
-                    <td colspan="8" class="text-center text-muted">Aucun événement pour ces critères.</td>
-                </tr>
             {% endfor %}
-            </tbody>
-        </table>
+        </div>
+
+        {# ---- Filtres ---- #}
+        <form method="get" class="row g-2 align-items-end mb-3">
+            <div class="col-sm-4 col-md-3">
+                <label class="form-label">Statut</label>
+                <select name="status" class="form-select">
+                    {% set options = {
+                        'ALL':'Tous',
+                        'CREATED':'CREATED',
+                        'PUBLISHED':'PUBLISHED',
+                        'REGISTRATION_OPEN':'REGISTRATION_OPEN',
+                        'REGISTRATION_CLOSED':'REGISTRATION_CLOSED',
+                        'ONGOING':'ONGOING',
+                        'FINISHED':'FINISHED',
+                        'CANCELED':'CANCELED',
+                        'ARCHIVED':'ARCHIVED'
+                    } %}
+                    {% for val,lab in options %}
+                        <option value="{{ val }}" {% if status == val %}selected{% endif %}>{{ lab }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-sm-6 col-md-5">
+                <label class="form-label">Recherche</label>
+                <input type="text" class="form-control" name="q" value="{{ q }}" placeholder="Nom de l'événement, organisateur, email…">
+            </div>
+            <div class="col-sm-2 col-md-2">
+                <button class="btn btn-primary w-100">Filtrer</button>
+            </div>
+            <div class="col-sm-12 col-md-2">
+                <a class="btn btn-outline-secondary w-100" href="{{ path('event_admin_index') }}">Réinitialiser</a>
+            </div>
+        </form>
+
+        {# ---- Table ---- #}
+        <div class="table-responsive">
+            <table class="table table-striped align-middle">
+                <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Événement</th>
+                    <th>Début</th>
+                    <th>Statut</th>
+                    <th>Site</th>
+                    <th>Organisateur</th>
+                    <th>Participants</th>
+                    <th class="text-end">Actions</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for e in events %}
+                    {% set ws = (e.workflowstate ?? '')|upper %}
+                    {% set badge = {
+                        'CREATED':'secondary','PUBLISHED':'primary',
+                        'REGISTRATION_OPEN':'info','REGISTRATION_CLOSED':'warning',
+                        'ONGOING':'dark','FINISHED':'success','CANCELED':'danger'
+                    }[ws] ?? 'secondary' %}
+                    <tr>
+                        <td>{{ e.id }}</td>
+                        <td>
+                            <div class="fw-semibold">{{ e.name }}</div>
+                            <div class="text-muted small">{{ e.place ? e.place.name : '—' }}</div>
+                        </td>
+                        <td>
+                            {% if e.startDateTime %}
+                                {{ e.startDateTime|date('d/m/Y H:i') }}
+                            {% else %} — {% endif %}
+                        </td>
+                        <td>
+                            <span class="badge rounded-pill bg-{{ badge }}-subtle text-{{ badge }}">{{ ws }}</span>
+                        </td>
+                        <td>{{ e.site ? e.site.name : '—' }}</td>
+                        <td>{{ e.organizer ? e.organizer.username : '—' }}</td>
+                        <td>
+                            {% set count = e.registrations|length %}
+                            {{ count }}{% if e.maxParticipant %} / {{ e.maxParticipant }}{% endif %}
+                        </td>
+                        <td class="text-end">
+                            <a href="{{ path('event_manage', {id: e.id}) }}" class="btn btn-sm btn-outline-primary">Gérer</a>
+                        </td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="8" class="text-center text-muted">Aucun événement pour ces critères.</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
     </div>
 {% endblock %}
+

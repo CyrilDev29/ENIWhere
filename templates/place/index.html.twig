@@ -1,39 +1,46 @@
 {% extends 'base.html.twig' %}
-{% block title 'Lieux' %}
+{% block title %}Lieux{% endblock %}
 
 {% block body %}
-    <h1>Lieux</h1>
+    <div class="container mt-4">
+        <h1 class="mb-3">Lieux</h1>
 
-    <a href="{{ path('place_new') }}" class="btn btn-primary">Nouveau lieu</a>
+        <a href="{{ path('place_new') }}" class="btn btn-primary mb-3">Nouveau lieu</a>
 
-    <table class="table mt-3">
-        <thead>
-        <tr>
-            <th>Nom</th>
-            <th>Adresse</th>
-            <th>Ville</th>
-            <th></th>
-        </tr>
-        </thead>
-        <tbody>
-        {% for place in places %}
-            <tr>
-                <td>{{ place.name }}</td>
-                <td>{{ place.street }}</td>
-                <td>{{ place.city ? place.city.name : '' }}</td>
-                <td>
-                    <a href="{{ path('place_edit', {id: place.id}) }}" class="btn btn-sm btn-secondary">Éditer</a>
-                    <form method="post" action="{{ path('place_delete', {id: place.id}) }}" style="display:inline" onsubmit="return confirm('Supprimer ?');">
-                        <input type="hidden" name="_token" value="{{ csrf_token('delete_place_' ~ place.id) }}">
-                        <button class="btn btn-sm btn-danger">Supprimer</button>
-                    </form>
-                </td>
-            </tr>
-        {% else %}
-            <tr>
-                <td colspan="4">Aucun lieu enregistré</td>
-            </tr>
-        {% endfor %}
-        </tbody>
-    </table>
+        <div class="table-responsive">
+            <table class="table align-middle">
+                <thead>
+                <tr>
+                    <th>Nom</th>
+                    <th>Adresse</th>
+                    <th>Ville</th>
+                    <th class="text-end">Actions</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for place in places %}
+                    <tr>
+                        <td>{{ place.name }}</td>
+                        <td>{{ place.street }}</td>
+                        <td>{{ place.city ? place.city.name : '' }}</td>
+                        <td class="text-end">
+                            <a href="{{ path('place_edit', {id: place.id}) }}" class="btn btn-sm btn-secondary">Éditer</a>
+                            <form method="post"
+                                  action="{{ path('place_delete', {id: place.id}) }}"
+                                  class="d-inline"
+                                  onsubmit="return confirm('Supprimer ?');">
+                                <input type="hidden" name="_token" value="{{ csrf_token('delete_place_' ~ place.id) }}">
+                                <button class="btn btn-sm btn-danger">Supprimer</button>
+                            </form>
+                        </td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="4" class="text-center text-muted">Aucun lieu enregistré</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
 {% endblock %}

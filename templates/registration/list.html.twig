@@ -2,6 +2,9 @@
 
 {% block title %}Liste des utilisateurs{% endblock %}
 
+{# Ici on écrase la largeur par défaut définie dans base.html.twig #}
+{% block content_container_classes %}col-12{% endblock %}
+
 {% block body %}
     <div class="container mt-5">
         <h1>Liste des utilisateurs</h1>
@@ -16,49 +19,52 @@
             {% endfor %}
         {% endfor %}
 
-        <table class="table table-bordered table-hover">
-            <thead>
-            <tr>
-                <th>ID</th>
-                <th>Photo</th>
-                <th>Nom</th>
-                <th>Prénom</th>
-                <th>Email</th>
-                <th>Pseudo</th>
-                <th>Rôle(s)</th>
-                <th>Actions</th>
-            </tr>
-            </thead>
-            <tbody>
-            {% for user in users %}
+        <div class="table-responsive">
+            <table class="table table-bordered table-hover align-middle">
+                <thead>
                 <tr>
-                    <td>{{ user.id }}</td>
-                    <td>
-                        {% if user.photoName %}
-                            <img src="{{ asset('uploads/photos/' ~ user.photoName) }}"
-                                 alt="Photo de {{ user.firstName }}"
-                                 style="width: 60px; height: 45px; object-fit: cover; border: 1px solid #ddd;">
-                        {% else %}
-                            <span class="text-muted">Aucune photo</span>
-                        {% endif %}
-                    </td>
-                    <td>{{ user.lastName }}</td>
-                    <td>{{ user.firstName }}</td>
-                    <td>{{ user.email }}</td>
-                    <td>{{ user.username }}</td>
-                    <td>{{ user.roles|join(', ') }}</td>
-                    <td>
-                        <a href="{{ path('user_profile_show', {'id': user.id}) }}" class="btn btn-sm btn-info me-1">Voir</a>
-                        <a href="{{ path('admin_user_edit', {'id': user.id}) }}" class="btn btn-sm btn-primary">Modifier</a>
-                        {#  <a href="{{ path('admin_user_delete', {'id': user.id}) }}" class="btn btn-sm btn-danger">Supprimer</a>#}
-                    </td>
+                    <th>ID</th>
+                    <th>Photo</th>
+                    <th>Nom</th>
+                    <th>Prénom</th>
+                    <th>Email</th>
+                    <th>Pseudo</th>
+                    <th>Rôle(s)</th>
+                    <th>Actions</th>
                 </tr>
-            {% else %}
-                <tr>
-                    <td colspan="8" class="text-center">Aucun utilisateur trouvé.</td>
-                </tr>
-            {% endfor %}
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                {% for user in users %}
+                    <tr>
+                        <td>{{ user.id }}</td>
+                        <td>
+                            {% if user.photoName %}
+                                <img src="{{ asset('uploads/photos/' ~ user.photoName) }}"
+                                     alt="Photo de {{ user.firstName }}"
+                                     style="width: 60px; height: 45px; object-fit: cover; border: 1px solid #ddd;">
+                            {% else %}
+                                <span class="text-muted">Aucune photo</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ user.lastName }}</td>
+                        <td>{{ user.firstName }}</td>
+                        <td>{{ user.email }}</td>
+                        <td>{{ user.username }}</td>
+                        <td>{{ user.roles|join(', ') }}</td>
+                        <td>
+                            <a href="{{ path('user_profile_show', {'id': user.id}) }}" class="btn btn-sm btn-info me-1">Voir</a>
+                            <a href="{{ path('admin_user_edit', {'id': user.id}) }}" class="btn btn-sm btn-primary">Modifier</a>
+                            {# Bouton supprimer laissé en commentaire si besoin plus tard #}
+                            {# <a href="{{ path('admin_user_delete', {'id': user.id}) }}" class="btn btn-sm btn-danger">Supprimer</a> #}
+                        </td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="8" class="text-center">Aucun utilisateur trouvé.</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
     </div>
 {% endblock %}

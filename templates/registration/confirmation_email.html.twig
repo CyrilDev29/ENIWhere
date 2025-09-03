@@ -1,11 +1,75 @@
-<h1>Hi! Please confirm your email!</h1>
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Confirmation de votre email</title>
+    <style>
+        body {
+            font-family: 'Montserrat', Arial, sans-serif;
+            background-color: #f9faff;
+            margin: 0;
+            padding: 2rem;
+            color: #333;
+        }
+        .email-container {
+            max-width: 600px;
+            margin: auto;
+            background: #fff;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+            text-align: center;
+        }
+        h1 {
+            color: #5a3e8c; /* ton violet foncé */
+            margin-bottom: 1.5rem;
+        }
+        p {
+            font-size: 1rem;
+            line-height: 1.5;
+        }
+        a.confirm-btn {
+            display: inline-block;
+            margin: 1.5rem 0;
+            padding: 0.75rem 1.5rem;
+            background: #7c5ec6;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: background 0.3s ease;
+        }
+        a.confirm-btn:hover {
+            background: #684bab;
+        }
+        .footer {
+            margin-top: 2rem;
+            font-size: 0.85rem;
+            color: #777;
+        }
+    </style>
+</head>
+<body>
+<div class="email-container">
+    <h1>Bienvenue sur ENIWhere 🎉</h1>
 
-<p>
-    Please confirm your email address by clicking the following link: <br><br>
-    <a href="{{ signedUrl|raw }}">Confirm my Email</a>.
-    This link will expire in {{ expiresAtMessageKey|trans(expiresAtMessageData, 'VerifyEmailBundle') }}.
-</p>
+    <p>
+        Merci de vous être inscrit !<br>
+        Veuillez confirmer votre adresse email en cliquant sur le bouton ci-dessous :
+    </p>
 
-<p>
-    Cheers!
-</p>
+    <p>
+        <a href="{{ signedUrl|raw }}" class="confirm-btn">Confirmer mon email</a>
+    </p>
+
+    <p>
+        Ce lien expirera dans
+        <strong>{{ expiresAtMessageKey|trans(expiresAtMessageData, 'VerifyEmailBundle') }}</strong>.
+    </p>
+
+    <div class="footer">
+        <p>À très bientôt,<br>L’équipe ENIWhere</p>
+    </div>
+</div>
+</body>
+</html>

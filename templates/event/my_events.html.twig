@@ -8,6 +8,21 @@
     {% endif %}
 {% endblock %}
 
+{% block stylesheets %}
+    <style>
+        /* Animation hover sur les cartes d’événements */
+        .event-card {
+            border-radius: 16px;
+            box-shadow: 0 12px 28px rgba(0,0,0,.08);
+            transition: transform .28s ease, box-shadow .28s ease;
+        }
+        .event-card:hover {
+            transform: translateY(-6px) scale(1.02);
+            box-shadow: 0 22px 45px rgba(0,0,0,.18);
+        }
+    </style>
+{% endblock %}
+
 {% block body %}
     <div class="container mt-4">
         <h1 class="mb-4 text-center text-primary">
@@ -30,34 +45,44 @@
             <div class="row g-4">
                 {% for e in events %}
                     <div class="col-md-6 col-lg-4">
-                        <div class="card shadow-sm h-100">
+                        <div class="card event-card h-100">
                             <div class="card-body d-flex flex-column">
                                 <h5 class="card-title">{{ e.name }}</h5>
 
-                                <p class="card-text mb-1"><strong>Date/heure:</strong> {{ e.startDateTime ? e.startDateTime|date('d/m/Y H:i') : '-' }}</p>
-                                <p class="card-text mb-1"><strong>Site:</strong> {{ e.site ? e.site.name : '-' }}</p>
-                                <p class="card-text mb-1"><strong>Lieu:</strong> {{ e.place ? e.place.name : '-' }}</p>
+                                <p class="card-text mb-1">
+                                    <strong>Date/heure :</strong>
+                                    {{ e.startDateTime ? e.startDateTime|date('d/m/Y H:i') : '-' }}
+                                </p>
+                                <p class="card-text mb-1"><strong>Site :</strong> {{ e.site ? e.site.name : '-' }}</p>
+                                <p class="card-text mb-1"><strong>Lieu :</strong> {{ e.place ? e.place.name : '-' }}</p>
 
                                 {% if is_granted('ROLE_ADMIN') %}
-                                    <p class="card-text mb-1"><strong>Organisateur:</strong> {{ e.organizer ? e.organizer.username : '-' }}</p>
+                                    <p class="card-text mb-1">
+                                        <strong>Organisateur :</strong>
+                                        {{ e.organizer ? e.organizer.username : '-' }}
+                                    </p>
                                 {% endif %}
 
                                 <p class="card-text mb-1">
-                                    <strong>État:</strong>
-                                    <span class="badge
-                                        {% if e.state == 'Ouvert' %} bg-success
-                                        {% elseif e.state == 'Clôturé' %} bg-danger
-                                        {% else %} bg-secondary
-                                        {% endif %}">
-                                        {{ e.state }}
-                                    </span>
+                                    <strong>État :</strong>
+                                    {% set etat = e.state %}
+                                    {% if etat == 'Ouvert' %}
+                                        <span class="badge rounded-pill bg-success-subtle text-success">Ouvert</span>
+                                    {% elseif etat == 'Clôturé' %}
+                                        <span class="badge rounded-pill bg-danger-subtle text-danger">Clôturé</span>
+                                    {% else %}
+                                        <span class="badge rounded-pill bg-secondary-subtle text-secondary">{{ etat }}</span>
+                                    {% endif %}
                                 </p>
 
-                                <p class="card-text mb-3"><strong>Inscrits:</strong> {{ e.registrations|length }}/{{ e.maxParticipant ?? '-' }}</p>
+                                <p class="card-text mb-3">
+                                    <strong>Inscrits :</strong>
+                                    {{ e.registrations|length }}/{{ e.maxParticipant ?? '-' }}
+                                </p>
 
                                 <div class="mt-auto">
                                     <a href="{{ path('event_manage', {id: e.id}) }}" class="btn btn-primary w-100">
-                                        <i class="bi bi-pencil-square"></i> Gérer
+                                        <i class="bi bi-pencil-square me-1"></i> Gérer
                                     </a>
                                 </div>
                             </div>
@@ -68,3 +93,4 @@
         {% endif %}
     </div>
 {% endblock %}
+
