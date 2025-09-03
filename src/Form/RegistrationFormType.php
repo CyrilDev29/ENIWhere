@@ -30,17 +30,42 @@ class RegistrationFormType extends AbstractType
         $builder
             ->add('lastName', TextType::class, [
                 'label' => 'Nom',
+                'required' => true,
+                'constraints' => [
+                    new NotBlank(['message' => 'Le nom est obligatoire.'])
+                ]
             ])
             ->add('firstName', TextType::class, [
                 'label' => 'Prénom',
+                'required' => true,
+                'constraints' => [
+                    new NotBlank(['message' => 'Le prénom est obligatoire.'])
+                ]
             ])
+
             ->add('username', TextType::class, [
                 'label' => 'Pseudo',
-                'disabled' => $isEdit && !$isAdmin, // ----l'utilisateur ne peut pas changer son pseudo
+                'disabled' => $isEdit && !$isAdmin, // l'utilisateur ne peut pas changer son pseudo
+                'required' => false,
+                'constraints' => [
+                    new NotBlank(['message' => 'Le pseudo est obligatoire.'])
+                ]
             ])
             ->add('phoneNumber', TextType::class, [
                 'label' => 'Téléphone',
                 'required' => false,
+                'constraints' => [
+                    new Length([
+                        'min' => 10,
+                        'max' => 15,
+                        'minMessage' => "Le numéro de téléphone doit contenir au moins {{ limit }} caractères.",
+                        'maxMessage' => "Le numéro de téléphone ne peut pas dépasser {{ limit }} caractères."
+                    ]),
+                    new Regex([
+                        'pattern' => "/^(0[1-9]\d{8}|(\+33|0033)[1-9]\d{8})$/",
+                        'message' => "Le numéro de téléphone doit être un numéro français valide (ex : 0612345678 ou +33612345678)."
+                    ]),
+                ],
             ])
             ->add('email', EmailType::class, [
                 'label' => 'Email',
@@ -85,8 +110,11 @@ class RegistrationFormType extends AbstractType
                         'max' => 4096,
                     ]),
                     ...($isRegistration ? [new NotBlank(['message' => 'Veuillez entrer un mot de passe'])] : []),
+                    new Regex([
+                        'pattern' => "/^(?=.*[0-9])(?=.*[!@#$%^&*(),.?\":{}|<>]).{8,}$/",
+                        'message' => "Le mot de passe doit contenir au moins 8 caractères, un chiffre et un caractère spécial."
+                    ])
                 ],
-
             ])
             ->add('site', EntityType::class, [
                 'class' => Site::class,

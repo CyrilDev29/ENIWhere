@@ -1,0 +1,49 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Accès refusé{% endblock %}
+{% block stylesheets %}
+    <style>
+        .error-page {
+            text-align: center;
+            margin-top: 100px;
+            color: #000000;
+            font-family: Arial, sans-serif;
+        }
+
+        .error-page h1,
+        .error-page p,
+        .error-page a {
+            color: #000000;
+        }
+
+        .error-page h1 {
+            font-size: 3em;
+            margin-bottom: 20px;
+        }
+
+        .error-page p {
+            font-size: 1.2em;
+        }
+
+        .error-page a {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: #f0f0f0;
+            text-decoration: none;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+
+        .error-page a:hover {
+            background-color: #e0e0e0;
+        }
+    </style>
+{% endblock %}
+{% block body %}
+<div class="error-page">
+    <h1>403 - Accès refusé</h1>
+    <p>Désolé, vous n'avez pas les droits nécessaires pour accéder à cette page.</p>
+</div>
+{% endblock %}

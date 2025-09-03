@@ -2,101 +2,18 @@
 
 {% block title %}Créer un utilisateur{% endblock %}
 
-{% block stylesheets %}
-    <style>
-        body {
-            margin: 0;
-            font-family: 'Poppins', sans-serif;
-        }
-
-        /* Conteneur centré */
-        .form-wrapper {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 110vh;
-
-        }
-
-        .form-card {
-            background: #fff;
-            border-radius: 20px;
-            padding: 40px 30px;
-            width: 100%;
-            max-width: 650px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-
-        .form-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 30px 60px rgba(0,0,0,0.2);
-        }
-
-        .form-card h1 {
-            text-align: center;
-            margin-bottom: 40px;
-            font-weight: 700;
-            font-size: 28px;
-            color: #4c62b6;
-        }
-
-        label {
-            font-weight: 600;
-            margin-bottom: 8px;
-            display: block;         /* important pour que le label soit visible */
-            color: #333333;         /* couleur lisible */
-        }
-
-        .form-control, .form-select {
-            border-radius: 12px;
-            padding: 14px 15px;
-            border: 1px solid #ddd;
-            transition: border 0.3s ease, box-shadow 0.3s ease;
-        }
-
-        .form-control:focus, .form-select:focus {
-            border-color: #667eea;
-            box-shadow: 0 0 10px rgba(102,126,234,0.3);
-            outline: none;
-        }
-
-        .btn-primary {
-            width: 100%;
-            background: #667eea;
-            border: none;
-            padding: 14px;
-            border-radius: 12px;
-            font-weight: 600;
-            font-size: 16px;
-            color: #fff;
-            cursor: pointer;
-            transition: background 0.3s ease, transform 0.2s ease;
-            margin-top: 15px;
-        }
-
-        .btn-primary:hover {
-            background: #5a67d8;
-            transform: translateY(-2px);
-        }
-
-        .alert {
-            border-radius: 12px;
-            padding: 12px 15px;
-            margin-bottom: 20px;
-        }
-    </style>
-{% endblock %}
 
 {% block body %}
     <div class="form-wrapper">
         <div class="form-card">
             <h1>Créer un utilisateur</h1>
 
+            {# Flash messages avec bouton de fermeture #}
             {% for label, messages in app.flashes %}
                 {% for message in messages %}
-                    <div class="alert alert-{{ label == 'success' ? 'success' : 'danger' }}">
+                    <div class="alert alert-{{ label == 'error' ? 'danger' : (label == 'success' ? 'success' : label) }} alert-dismissible fade show" role="alert">
                         {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fermer"></button>
                     </div>
                 {% endfor %}
             {% endfor %}
@@ -106,44 +23,44 @@
             <div class="mb-3">
                 {{ form_label(registrationForm.lastName) }}
                 {{ form_widget(registrationForm.lastName, {'attr': {'class': 'form-control'}}) }}
-                {{ form_errors(registrationForm.lastName) }}
+                <div class="form-error">{{ form_errors(registrationForm.lastName) }}</div>
             </div>
 
             <div class="mb-3">
                 {{ form_label(registrationForm.firstName) }}
                 {{ form_widget(registrationForm.firstName, {'attr': {'class': 'form-control'}}) }}
-                {{ form_errors(registrationForm.firstName) }}
+                <div class="form-error">{{ form_errors(registrationForm.firstName) }}</div>
             </div>
 
             <div class="mb-3">
                 {{ form_label(registrationForm.username) }}
                 {{ form_widget(registrationForm.username, {'attr': {'class': 'form-control'}}) }}
-                {{ form_errors(registrationForm.username) }}
+                <div class="form-error">{{ form_errors(registrationForm.username) }}</div>
             </div>
 
             <div class="mb-3">
                 {{ form_label(registrationForm.email) }}
                 {{ form_widget(registrationForm.email, {'attr': {'class': 'form-control'}}) }}
-                {{ form_errors(registrationForm.email) }}
+                <div class="form-error">{{ form_errors(registrationForm.email) }}</div>
             </div>
 
             <div class="mb-3">
                 {{ form_label(registrationForm.phoneNumber) }}
                 {{ form_widget(registrationForm.phoneNumber, {'attr': {'class': 'form-control'}}) }}
-                {{ form_errors(registrationForm.phoneNumber) }}
+                <div class="form-error">{{ form_errors(registrationForm.phoneNumber) }}</div>
             </div>
 
             <div class="mb-3">
                 {{ form_label(registrationForm.plainPassword, 'Mot de passe') }}
                 {{ form_widget(registrationForm.plainPassword, {'attr': {'class': 'form-control'}}) }}
-                {{ form_errors(registrationForm.plainPassword) }}
+                <div class="form-error">{{ form_errors(registrationForm.plainPassword) }}</div>
             </div>
 
             {% if registrationForm.site is defined %}
                 <div class="mb-3">
                     {{ form_label(registrationForm.site) }}
                     {{ form_widget(registrationForm.site, {'attr': {'class': 'form-select'}}) }}
-                    {{ form_errors(registrationForm.site) }}
+                    <div class="form-error">{{ form_errors(registrationForm.site) }}</div>
                 </div>
             {% endif %}
 
@@ -151,13 +68,16 @@
                 <div class="mb-3">
                     {{ form_label(registrationForm.roles) }}
                     {{ form_widget(registrationForm.roles) }}
-                    {{ form_errors(registrationForm.roles) }}
+                    <div class="form-error">{{ form_errors(registrationForm.roles) }}</div>
                 </div>
             {% endif %}
 
             {{ form_rest(registrationForm) }}
 
-            <button type="submit" class="btn btn-primary">Créer l'utilisateur</button>
+            <div class="d-flex justify-content-end gap-2 mt-3">
+                <a href="{{ path('admin_user_list') }}" class="btn btn-outline-secondary">Annuler</a>
+                <button type="submit" class="btn btn-primary">Créer l'utilisateur</button>
+            </div>
 
             {{ form_end(registrationForm) }}
         </div>

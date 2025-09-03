@@ -6,25 +6,23 @@
 {% block body %}
     <div class="container mt-5 p-4 bg-light rounded shadow-sm">
 
-        {# ===== Flash messages ===== #}
+        {# Flash messages #}
         {% for label, messages in app.flashes %}
             {% for message in messages %}
-                <div class="alert alert-{{ label }} alert-dismissible fade show" role="alert">
+                <div class="alert alert-{{ label == 'error' ? 'danger' : label }} alert-dismissible fade show" role="alert">
                     {{ message }}
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fermer"></button>
                 </div>
             {% endfor %}
         {% endfor %}
 
-        {# ===== Titre ===== #}
         <h1 class="mb-5 text-center text-primary fw-bold border-bottom pb-3">
             Gérer : {{ event.name ?? ('Événement #' ~ event.id) }}
         </h1>
 
-        {# ====== Actions workflow ====== #}
+        {# Workflow actions #}
         <div class="mb-4 d-flex flex-wrap gap-2 justify-content-center">
             {% set state = event.state|upper %}
-
             {% set actions = [
                 { 'route': 'event_publish', 'label': 'Publier', 'class': 'primary', 'enabled': ['CREATED'] },
                 { 'route': 'event_open_regs', 'label': 'Ouvrir inscriptions', 'class': 'secondary', 'enabled': ['PUBLISHED'] },
@@ -32,9 +30,8 @@
                 { 'route': 'event_start', 'label': 'Démarrer', 'class': 'info', 'enabled': ['CLOSED'] },
                 { 'route': 'event_finish', 'label': 'Terminer', 'class': 'success', 'enabled': ['ONGOING'] }
             ] %}
-
             {% for a in actions %}
-                <form method="post" action="{{ path(a.route, {id: event.id}) }}">
+                <form method="post" action="{{ path(a.route, {id: event.id}) }}" class="m-0">
                     <input type="hidden" name="_token" value="{{ csrf_token(a.route ~ '_' ~ event.id) }}">
                     <button class="btn btn-{{ a.class }} btn-sm me-2 mb-2"
                             {% if state not in a.enabled %}disabled{% endif %}>
@@ -43,14 +40,14 @@
                 </form>
             {% endfor %}
 
-            {# Bouton d'annulation #}
-            <button class="btn btn-danger btn-sm me-2 mb-2" data-bs-toggle="modal" data-bs-target="#cancelModal-{{ event.id }}"
+            <button class="btn btn-danger btn-sm me-2 mb-2"
+                    data-bs-toggle="modal" data-bs-target="#cancelModal-{{ event.id }}"
                     {% if state in ['FINISHED','CANCELED'] %}disabled{% endif %}>
                 Annuler
             </button>
         </div>
 
-        {# ===== Modal d'annulation ===== #}
+        {# Cancel modal #}
         <div class="modal fade" id="cancelModal-{{ event.id }}" tabindex="-1" aria-labelledby="cancelModalLabel-{{ event.id }}" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
                 <div class="modal-content border-danger rounded shadow">
@@ -76,18 +73,43 @@
             </div>
         </div>
 
-        {# ===== Formulaire édition si autorisé ===== #}
+        {# Formulaire édition si autorisé #}
         {% if canEdit %}
-            <div class="card shadow-sm rounded mb-4 p-4 border-primary">
-                <h3 class="mb-3 text-primary fw-bold">Modifier l'événement</h3>
-                {{ form_start(form, { attr: { novalidate: 'novalidate' } }) }}
-                {{ form_errors(form) }}
-                {{ form_widget(form) }}
-                <div class="mt-3 d-flex gap-2 flex-wrap">
-                    <button class="btn btn-primary">Enregistrer</button>
-                    <a href="{{ path('event_manage', { id: event.id }) }}" class="btn btn-secondary">Annuler</a>
+            <div class="card shadow-sm rounded mb-4 form-card">
+                <div class="card-body">
+                    <h3 class="mb-3 text-primary fw-bold">Modifier l'événement</h3>
+
+                    {% form_theme form 'bootstrap_5_layout.html.twig' %}
+                    {{ form_start(form, { attr: { class: 'needs-validation', novalidate: 'novalidate' } }) }}
+
+                    <div class="row g-3">
+                        {{ form_row(form.name) }}
+                        {{ form_row(form.startDateTime) }}
+                        {{ form_row(form.duration) }}
+                        {{ form_row(form.registrationDeadline) }}
+                        {{ form_row(form.maxParticipant) }}
+                        {{ form_row(form.description) }}
+                        {{ form_row(form.site) }}
+                        {{ form_row(form.place) }}
+                        {{ form_row(form.street) }}
+                        {{ form_row(form.postalCode) }}
+                        {{ form_row(form.city) }}
+                        {{ form_row(form.gpsLatitude) }}
+                        {{ form_row(form.gpsLongitude) }}
+                    </div>
+
+                    <div class="mt-3 d-flex gap-2 flex-wrap">
+                        <button class="btn btn-primary">Enregistrer</button>
+                        <a href="{{ path('event_manage', { id: event.id }) }}" class="btn btn-outline-secondary">Annuler</a>
+                    </div>
+                    {{ form_end(form) }}
+
+                    {# Suppression #}
+                    <form method="post" action="{{ path('event_delete', {id: event.id}) }}" onsubmit="return confirm('Voulez-vous vraiment supprimer cet événement ?');">
+                        <input type="hidden" name="_token" value="{{ csrf_token('delete_event_' ~ event.id) }}">
+                        <button class="btn btn-danger mt-3 w-100">Supprimer l'événement</button>
+                    </form>
                 </div>
-                {{ form_end(form) }}
             </div>
         {% else %}
             <div class="d-flex gap-2 mb-4">
