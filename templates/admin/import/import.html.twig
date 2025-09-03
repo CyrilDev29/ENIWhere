@@ -4,9 +4,9 @@
 
 {% block body %}
     <div class="container mt-4">
-        <h1>Import CSV des utilisateurs</h1>
+        <h1 class="mb-3">Import CSV des utilisateurs</h1>
 
-        {# Affichage des messages flash #}
+        {# Flashs #}
         {% for type, messages in app.flashes %}
             {% for message in messages %}
                 <div class="alert alert-{{ type == 'error' ? 'danger' : type }} alert-dismissible fade show">
@@ -16,14 +16,15 @@
             {% endfor %}
         {% endfor %}
 
-        {# Instructions détaillées pour l'utilisateur #}
+        {# Instructions #}
         <div class="card mb-4">
-            <div class="card-header bg-info text-white">
-                <h5><i class="fas fa-info-circle"></i> Instructions importantes</h5>
+            <div class="card-header bg-info-subtle text-info border-0">
+                <h5 class="mb-0"><i class="bi bi-info-circle me-2"></i>Instructions importantes</h5>
             </div>
             <div class="card-body">
                 <h6>Format du fichier CSV requis :</h6>
                 <p>Le fichier CSV doit contenir les colonnes suivantes (dans cet ordre) :</p>
+
                 <div class="table-responsive">
                     <table class="table table-sm table-bordered">
                         <thead class="table-dark">
@@ -103,8 +104,8 @@
 
         {# Formulaire d'upload #}
         <div class="card">
-            <div class="card-header bg-primary text-white">
-                <h5><i class="fas fa-upload"></i> Sélectionner le fichier CSV</h5>
+            <div class="card-header bg-primary-subtle text-primary border-0">
+                <h5 class="mb-0"><i class="bi bi-upload me-2"></i>Sélectionner le fichier CSV</h5>
             </div>
             <div class="card-body">
                 {{ form_start(form, {'attr': {'enctype': 'multipart/form-data'}}) }}
@@ -112,9 +113,7 @@
                     {{ form_label(form.csvFile) }}
                     {{ form_widget(form.csvFile, {'attr': {'class': 'form-control'}}) }}
                     {{ form_errors(form.csvFile) }}
-                    <div class="form-text">
-                        Formats acceptés : .csv (maximum 5 Mo)
-                    </div>
+                    <div class="form-text">Formats acceptés : .csv (maximum 5 Mo)</div>
                 </div>
                 {{ form_widget(form.submit) }}
                 {{ form_end(form) }}
@@ -126,11 +125,10 @@
             <div class="mt-4">
                 <h3>Résultats de l'import</h3>
 
-                {# Utilisateurs créés avec succès #}
                 {% if importResults.success is not empty %}
                     <div class="card mb-3">
-                        <div class="card-header bg-success text-white">
-                            <h5><i class="fas fa-check-circle"></i> {{ importResults.success|length }} utilisateur(s) créé(s) avec succès</h5>
+                        <div class="card-header bg-success-subtle text-success border-0">
+                            <h5 class="mb-0"><i class="bi bi-check-circle me-2"></i>{{ importResults.success|length }} utilisateur(s) créé(s) avec succès</h5>
                         </div>
                         <div class="card-body">
                             <div class="table-responsive">
@@ -161,11 +159,10 @@
                     </div>
                 {% endif %}
 
-                {# Erreurs rencontrées #}
                 {% if importResults.errors is not empty %}
                     <div class="card">
-                        <div class="card-header bg-danger text-white">
-                            <h5><i class="fas fa-exclamation-triangle"></i> {{ importResults.errors|length }} erreur(s) rencontrée(s)</h5>
+                        <div class="card-header bg-danger-subtle text-danger border-0">
+                            <h5 class="mb-0"><i class="bi bi-exclamation-triangle me-2"></i>{{ importResults.errors|length }} erreur(s) rencontrée(s)</h5>
                         </div>
                         <div class="card-body">
                             <div class="table-responsive">
@@ -195,12 +192,12 @@
         {% endif %}
 
         {# Boutons de navigation #}
-        <div class="mt-4">
+        <div class="mt-4 d-flex gap-2">
             <a href="{{ path('app_main') }}" class="btn btn-secondary">
-                <i class="fas fa-arrow-left"></i> Retour à l'accueil
+                <i class="bi bi-arrow-left me-1"></i> Retour à l'accueil
             </a>
-            <a href="{{ path('admin_import_users') }}" class="btn btn-outline-primary ms-2">
-                <i class="fas fa-redo"></i> Nouvel import
+            <a href="{{ path('admin_import_users') }}" class="btn btn-outline-primary">
+                <i class="bi bi-arrow-repeat me-1"></i> Nouvel import
             </a>
         </div>
     </div>

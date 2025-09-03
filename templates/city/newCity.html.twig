@@ -4,116 +4,43 @@
 
 {% block stylesheets %}
     <style>
-        body {
-            font-family: 'Poppins', sans-serif;
-            background: linear-gradient(135deg, #76f0f1, #9b79e0);
-        }
-
-        .form-wrapper {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            padding: 20px;
-        }
-
         .form-card {
-            max-width: 500px;
-            width: 100%;
-            background: #fff;
-            padding: 2rem 2.5rem;
-            border-radius: 20px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0,0,0,.08);
+            transition: transform .28s ease, box-shadow .28s ease;
         }
-
         .form-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 30px 60px rgba(0,0,0,0.2);
-        }
-
-        .form-card h1 {
-            text-align: center;
-            margin-bottom: 2rem;
-            font-weight: 700;
-            font-size: 28px;
-            color: #4c62b6;
-        }
-
-        .form-control {
-            width: 100%;
-            padding: 14px 15px;
-            margin-bottom: 20px;
-            border-radius: 12px;
-            border: 1px solid #ddd;
-            transition: border 0.3s ease, box-shadow 0.3s ease;
-        }
-
-        .form-control:focus {
-            border-color: #667eea;
-            box-shadow: 0 0 10px rgba(102,126,234,0.3);
-            outline: none;
-        }
-
-        .btn-primary {
-            width: 100%;
-            background: #667eea;
-            border: none;
-            padding: 14px;
-            border-radius: 12px;
-            font-weight: 600;
-            font-size: 16px;
-            color: #101112;
-            cursor: pointer;
-            transition: background 0.3s ease, transform 0.2s ease;
-        }
-
-        .btn-primary:hover {
-            background: #5a67d8;
-            transform: translateY(-2px);
-        }
-
-        .btn-secondary {
-            width: 100%;
-            background: #81b889;
-            border: none;
-            padding: 14px;
-            border-radius: 12px;
-            font-weight: 600;
-            font-size: 16px;
-            color: #101112;
-            cursor: pointer;
-            transition: background 0.3s ease, transform 0.2s ease;
-        }
-
-        .btn-secondary:hover {
-            background: #999999;
-            transform: translateY(-2px);
+            transform: translateY(-6px) scale(1.02);
+            box-shadow: 0 22px 45px rgba(0,0,0,.18);
         }
     </style>
 {% endblock %}
 
 {% block body %}
-    <div class="form-wrapper">
-        <div class="form-card">
-            <h1>Créer une ville</h1>
-
-            {{ form_start(form, {'attr': {'class': 'row g-3'}}) }}
-            <div class="col-12">
-                {{ form_row(form.name, {'attr': {'class': 'form-control', 'placeholder': 'Nom de la ville'}}) }}
-            </div>
-            <div class="col-12">
-                {{ form_row(form.postalCode, {'attr': {'class': 'form-control', 'placeholder': 'Code postal'}}) }}
-            </div>
-
-            <div class="col-12 mt-3">
-                <button class="btn btn-primary">Enregistrer</button>
-            </div>
-            {{ form_end(form) }}
-
-            <div class="col-12 mt-3">
-                <a href="{{ path('city_index') }}" class="btn btn-secondary">← Retour</a>
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-12 col-md-6 col-lg-5">
+                <div class="card form-card">
+                    <div class="card-header bg-primary-subtle text-primary border-0">
+                        <h5 class="mb-0">Créer une ville</h5>
+                    </div>
+                    <div class="card-body">
+                        {{ form_start(form) }}
+                        <div class="mb-3">
+                            {{ form_row(form.name, {'attr': {'class': 'form-control', 'placeholder': 'Nom de la ville'}}) }}
+                        </div>
+                        <div class="mb-3">
+                            {{ form_row(form.postalCode, {'attr': {'class': 'form-control', 'placeholder': 'Code postal'}}) }}
+                        </div>
+                        <div class="d-grid gap-2 mt-4">
+                            <button type="submit" class="btn btn-primary">Enregistrer</button>
+                            <a href="{{ path('city_index') }}" class="btn btn-outline-secondary">← Retour</a>
+                        </div>
+                        {{ form_end(form) }}
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 {% endblock %}
+

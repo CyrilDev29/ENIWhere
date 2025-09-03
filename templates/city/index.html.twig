@@ -1,5 +1,5 @@
 {% extends 'base.html.twig' %}
-{% block title %}'Villes'{% endblock %}
+{% block title %}Villes{% endblock %}
 
 {% block body %}
     <div class="container mt-4">
@@ -7,31 +7,38 @@
 
         <a href="{{ path('city_new') }}" class="btn btn-primary mb-3">Nouvelle ville</a>
 
-        <table class="table table-striped">
-            <thead>
-            <tr>
-                <th>Nom</th>
-                <th>Code postal</th>
-                <th>Actions</th>
-            </tr>
-            </thead>
-            <tbody>
-            {% for city in cities %}
+        <div class="table-responsive">
+            <table class="table table-striped align-middle">
+                <thead>
                 <tr>
-                    <td>{{ city.name }}</td>
-                    <td>{{ city.postalCode }}</td>
-                    <td>
-                        <a href="{{ path('city_edit', {id: city.id}) }}" class="btn btn-sm btn-secondary">Éditer</a>
-                        <form method="post" action="{{ path('city_delete', {id: city.id}) }}" style="display:inline" onsubmit="return confirm('Supprimer ?');">
-                            <input type="hidden" name="_token" value="{{ csrf_token('delete_city_' ~ city.id) }}">
-                            <button class="btn btn-sm btn-danger">Supprimer</button>
-                        </form>
-                    </td>
+                    <th>Nom</th>
+                    <th>Code postal</th>
+                    <th class="text-end">Actions</th>
                 </tr>
-            {% else %}
-                <tr><td colspan="3" class="text-center">Aucune ville</td></tr>
-            {% endfor %}
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                {% for city in cities %}
+                    <tr>
+                        <td>{{ city.name }}</td>
+                        <td>{{ city.postalCode }}</td>
+                        <td class="text-end">
+                            <a href="{{ path('city_edit', {id: city.id}) }}" class="btn btn-sm btn-secondary">Éditer</a>
+                            <form method="post"
+                                  action="{{ path('city_delete', {id: city.id}) }}"
+                                  class="d-inline"
+                                  onsubmit="return confirm('Supprimer ?');">
+                                <input type="hidden" name="_token" value="{{ csrf_token('delete_city_' ~ city.id) }}">
+                                <button class="btn btn-sm btn-danger">Supprimer</button>
+                            </form>
+                        </td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="3" class="text-center text-muted">Aucune ville</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
     </div>
 {% endblock %}
