@@ -14,11 +14,17 @@
                     <div class="alert alert-{{ label == 'error' ? 'danger' : (label == 'success' ? 'success' : label) }} alert-dismissible fade show" role="alert">
                         {{ message }}
                         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fermer"></button>
-                    </div>
-                {% endfor %}
-            {% endfor %}
 
-            {{ form_start(registrationForm, {'attr': {'class': 'needs-validation', 'novalidate': 'novalidate'}}) }}
+{% block body %}
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-12 col-lg-8">
+                <div class="card shadow-sm border-0">
+                    <div class="card-header bg-primary-subtle text-primary border-0">
+                        <h5 class="mb-0">Créer un utilisateur</h5>
+
+                    </div>
+
 
             <div class="mb-3">
                 {{ form_label(registrationForm.lastName) }}
@@ -80,6 +86,86 @@
             </div>
 
             {{ form_end(registrationForm) }}
+
+                    <div class="card-body">
+
+                        {# Flash messages #}
+                        {% for label, messages in app.flashes %}
+                            {% for message in messages %}
+                                <div class="alert alert-{{ label == 'error' ? 'danger' : (label == 'success' ? 'success' : label) }} alert-dismissible fade show" role="alert">
+                                    {{ message }}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fermer"></button>
+                                </div>
+                            {% endfor %}
+                        {% endfor %}
+
+                        {{ form_start(registrationForm, {'attr': {'class': 'needs-validation', 'novalidate': 'novalidate'}}) }}
+
+                        <div class="mb-3">
+                            {{ form_label(registrationForm.lastName) }}
+                            {{ form_widget(registrationForm.lastName, {'attr': {'class': 'form-control'}}) }}
+                            {{ form_errors(registrationForm.lastName) }}
+                        </div>
+
+                        <div class="mb-3">
+                            {{ form_label(registrationForm.firstName) }}
+                            {{ form_widget(registrationForm.firstName, {'attr': {'class': 'form-control'}}) }}
+                            {{ form_errors(registrationForm.firstName) }}
+                        </div>
+
+                        <div class="mb-3">
+                            {{ form_label(registrationForm.username) }}
+                            {{ form_widget(registrationForm.username, {'attr': {'class': 'form-control'}}) }}
+                            {{ form_errors(registrationForm.username) }}
+                        </div>
+
+                        <div class="mb-3">
+                            {{ form_label(registrationForm.email) }}
+                            {{ form_widget(registrationForm.email, {'attr': {'class': 'form-control'}}) }}
+                            {{ form_errors(registrationForm.email) }}
+                        </div>
+
+                        <div class="mb-3">
+                            {{ form_label(registrationForm.phoneNumber) }}
+                            {{ form_widget(registrationForm.phoneNumber, {'attr': {'class': 'form-control'}}) }}
+                            {{ form_errors(registrationForm.phoneNumber) }}
+                        </div>
+
+                        <div class="mb-3">
+                            {{ form_label(registrationForm.plainPassword, 'Mot de passe') }}
+                            {{ form_widget(registrationForm.plainPassword, {'attr': {'class': 'form-control'}}) }}
+                            {{ form_errors(registrationForm.plainPassword) }}
+                        </div>
+
+                        {% if registrationForm.site is defined %}
+                            <div class="mb-3">
+                                {{ form_label(registrationForm.site) }}
+                                {{ form_widget(registrationForm.site, {'attr': {'class': 'form-select'}}) }}
+                                {{ form_errors(registrationForm.site) }}
+                            </div>
+                        {% endif %}
+
+                        {% if registrationForm.roles is defined %}
+                            <div class="mb-3">
+                                {{ form_label(registrationForm.roles) }}
+                                {{ form_widget(registrationForm.roles) }}
+                                {{ form_errors(registrationForm.roles) }}
+                            </div>
+                        {% endif %}
+
+                        {{ form_rest(registrationForm) }}
+
+                        <div class="d-flex justify-content-end gap-2 mt-3">
+                            <a href="{{ path('admin_user_list') }}" class="btn btn-outline-secondary">Annuler</a>
+                            <button type="submit" class="btn btn-primary">Créer l'utilisateur</button>
+                        </div>
+
+                        {{ form_end(registrationForm) }}
+
+                    </div>
+                </div>
+            </div>
+
         </div>
     </div>
 {% endblock %}

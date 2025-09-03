@@ -3,112 +3,53 @@
 {% block title %} {{ parent() }} - Profil de {{ user.username }}{% endblock %}
 
 {% block body %}
-    <style>
-        .profile-card {
-            max-width: 500px;
-            margin: 3rem auto;
-            padding: 2rem;
-            border-radius: 1rem;
-            background: #f9faff; /* fond clair */
-            box-shadow: 0 10px 25px rgba(0,0,0,0.08);
-            text-align: center;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-        .profile-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 15px 35px rgba(0,0,0,0.15);
-        }
-        .profile-photo {
-            width: 200px;
-            height: 200px;
-            object-fit: cover;
-            border-radius: 50%;
-            border: 3px solid #6074cf;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-            margin-bottom: 1rem;
-        }
-        .profile-placeholder {
-            width: 200px;
-            height: 200px;
-            border-radius: 50%;
-            background-color: #e0e7ff;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 1rem;
-            color: #6c757d;
-            font-weight: bold;
-        }
-        .profile-name {
-            font-size: 1.6rem;
-            font-weight: 700;
-            color: #6074cf;
-            margin-bottom: 0.5rem;
-        }
-        .profile-username {
-            font-size: 1rem;
-            color: #6c757d;
-            margin-bottom: 1.5rem;
-        }
-        .profile-info p {
-            font-size: 1rem;
-            margin-bottom: 0.5rem;
-            color: #333;
-        }
-        .btn-modern {
-            border-radius: 50px;
-            padding: 0.75rem 1.5rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            transition: all 0.3s ease;
-            margin: 0.5rem;
-        }
-        .btn-modern-primary {
-            background-color: #6074cf;
-            color: #fff;
-            border: none;
-        }
-        .btn-modern-primary:hover {
-            background-color: #155ab6;
-            color: #fff;
-        }
-        .btn-modern-secondary {
-            background-color: #e0f2ff;
-            color: #1a73e8;
-            border: 2px solid #1a73e8;
-        }
-        .btn-modern-secondary:hover {
-            background-color: #1a73e8;
-            color: #fff;
-        }
-    </style>
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-12 col-md-8 col-lg-6">
+                <div class="card shadow-sm text-center">
+                    <div class="card-body p-4">
 
-    <div class="profile-card">
+                        {# Photo de profil #}
+                        {% if user.photoName %}
+                            <img
+                                src="{{ asset('uploads/photos/' ~ user.photoName) }}"
+                                alt="Photo de {{ user.firstName }} {{ user.lastName }}"
+                                class="rounded-circle border shadow-sm mb-3"
+                                style="width: 180px; height: 180px; object-fit: cover;"
+                            >
+                        {% else %}
+                            <div
+                                class="rounded-circle d-flex align-items-center justify-content-center mb-3 border"
+                                style="width: 180px; height: 180px; background: #e9ecff; color: #6c757d; font-weight: 600;"
+                            >
+                                Aucune photo
+                            </div>
+                        {% endif %}
 
-        {# Photo de profil #}
-        {% if user.photoName %}
-            <img src="{{ asset('uploads/photos/' ~ user.photoName) }}"
-                 alt="Photo de {{ user.firstName }} {{ user.lastName }}"
-                 class="profile-photo">
-        {% else %}
-            <div class="profile-placeholder">Aucune photo</div>
-        {% endif %}
+                        <h2 class="fw-bold text-primary mb-1">{{ user.firstName }} {{ user.lastName }}</h2>
+                        <p class="text-muted mb-4">@{{ user.username }}</p>
 
-        <h2 class="profile-name">{{ user.firstName }} {{ user.lastName }}</h2>
-        <p class="profile-username">@{{ user.username }}</p>
+                        <div class="text-start mx-auto" style="max-width: 420px;">
+                            <p class="mb-2"><strong>Email :</strong> {{ user.email }}</p>
+                            <p class="mb-2"><strong>Téléphone :</strong> {{ user.phoneNumber ?: 'Non renseigné' }}</p>
+                            <p class="mb-0"><strong>Site :</strong> {{ user.site ? user.site.name : 'Non attribué' }}</p>
+                        </div>
 
-        <div class="profile-info text-start mx-auto" style="max-width: 350px;">
-            <p><strong>Email :</strong> {{ user.email }}</p>
-            <p><strong>Téléphone :</strong> {{ user.phoneNumber ?: 'Non renseigné' }}</p>
-            <p><strong>Site :</strong> {{ user.site ? user.site.name : 'Non attribué' }}</p>
+                        <div class="d-flex justify-content-center flex-wrap gap-2 mt-4">
+                            {% if app.user and app.user.id == user.id %}
+                                <a href="{{ path('profile_edit') }}" class="btn btn-primary">
+                                    <i class="bi bi-pencil-square me-1"></i> Modifier
+                                </a>
+                            {% endif %}
+                            <a href="{{ path('app_main') }}" class="btn btn-outline-secondary">
+                                ← Retour
+                            </a>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
         </div>
-
-        <div class="d-flex justify-content-center flex-wrap mt-3">
-            {% if app.user and app.user.id == user.id %}
-                <a href="{{ path('profile_edit') }}" class="btn btn-modern btn-modern-primary">Modifier</a>
-            {% endif %}
-            <a href="{{ path('app_main') }}" class="btn btn-modern btn-modern-secondary">Retour</a>
-        </div>
-
     </div>
 {% endblock %}
+

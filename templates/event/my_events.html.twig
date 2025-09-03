@@ -9,6 +9,22 @@
 {% endblock %}
 
 
+{% block stylesheets %}
+    <style>
+        /* Animation hover sur les cartes d’événements */
+        .event-card {
+            border-radius: 16px;
+            box-shadow: 0 12px 28px rgba(0,0,0,.08);
+            transition: transform .28s ease, box-shadow .28s ease;
+        }
+        .event-card:hover {
+            transform: translateY(-6px) scale(1.02);
+            box-shadow: 0 22px 45px rgba(0,0,0,.18);
+        }
+    </style>
+{% endblock %}
+
+
 {% block body %}
     <div class="container mt-4">
 
@@ -92,3 +108,4 @@
         {% endif %}
     </div>
 {% endblock %}
+
