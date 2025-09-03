@@ -25,7 +25,7 @@
 {# ===== NAVBAR ===== #}
 <nav class="navbar navbar-expand-lg topbar border-bottom mb-4">
     <div class="container-xxl">
-        <a class="navbar-brand d-flex align-items-center gap-2" href="{{ path('event_index') }}">
+        <a class="navbar-brand d-flex align-items-center gap-2" href="{{ path('app_main') }}">
             <img src="{{ asset('images/logo-eniwhere.png') }}" alt="ENI’where" height="90" class="rounded">
             <span class="fw-semibold">ENI’where</span>
         </a>
@@ -50,11 +50,13 @@
                         <li class="nav-item"><a class="nav-link" href="{{ path('my_events') }}">Mes sorties</a></li>
                         <li class="nav-item"><a class="nav-link" href="{{ path('city_new') }}">Créer une ville</a></li>
                         <li class="nav-item"><a class="nav-link" href="{{ path('my_registrations') }}">Mes inscriptions</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{{ path('city_index') }}">Voire les villes</a></li>
                     {% endif %}
 
                     <li class="nav-item"><a class="nav-link" href="{{ path('app_logout') }}">Se déconnecter</a></li>
                 {% else %}
                     <li class="nav-item"><a class="nav-link" href="{{ path('app_login') }}">Se connecter</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{ path('app_register') }}">Créer un compte</a></li>
                 {% endif %}
             </ul>
         </div>

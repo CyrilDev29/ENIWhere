@@ -32,7 +32,7 @@
                         <td>{{ city.name }}</td>
                         <td>{{ city.postalCode }}</td>
                         <td class="text-end">
-                            <a href="{{ path('city_edit', {id: city.id}) }}" class="btn btn-sm btn-secondary">Éditer</a>
+
                             <form method="post"
                                   action="{{ path('city_delete', {id: city.id}) }}"
                                   class="d-inline"
