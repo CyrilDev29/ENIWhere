@@ -29,6 +29,7 @@
     </style>
 {% endblock %}
 
+
 {% block body %}
     {% if app.user %}
         <div class="container py-4">
@@ -55,33 +56,56 @@
                                 <div class="col-md-6">
                                     {{ form_label(form.name) }}
                                     {{ form_widget(form.name, {'attr': {'class': 'form-control'}}) }}
+
+                                    <div class="form-error">{{ form_errors(form.name) }}</div>
+
+
                                 </div>
                                 <div class="col-md-6">
                                     {{ form_label(form.startDateTime) }}
                                     {{ form_widget(form.startDateTime, {'attr': {'class': 'form-control'}}) }}
+
+                                    <div class="form-error">{{ form_errors(form.startDateTime) }}</div>
+
+
                                 </div>
 
                                 <div class="col-md-4">
                                     {{ form_label(form.duration) }}
                                     {{ form_widget(form.duration, {'attr': {'class': 'form-control'}}) }}
+
+                                    <div class="form-error">{{ form_errors(form.duration) }}</div>
+
                                 </div>
                                 <div class="col-md-4">
                                     {{ form_label(form.registrationDeadline) }}
                                     {{ form_widget(form.registrationDeadline, {'attr': {'class': 'form-control'}}) }}
+
+                                    <div class="form-error">{{ form_errors(form.registrationDeadline) }}</div>
+
                                 </div>
                                 <div class="col-md-4">
                                     {{ form_label(form.maxParticipant) }}
                                     {{ form_widget(form.maxParticipant, {'attr': {'class': 'form-control'}}) }}
+
+                                    <div class="form-error">{{ form_errors(form.maxParticipant) }}</div>
+
                                 </div>
 
                                 <div class="col-12">
                                     {{ form_label(form.description) }}
                                     {{ form_widget(form.description, {'attr': {'class': 'form-control', 'rows': 4}}) }}
+
+                                    <div class="form-error">{{ form_errors(form.description) }}</div>
+
                                 </div>
 
                                 <div class="col-12 position-relative">
                                     {{ form_label(form.place) }}
                                     {{ form_widget(form.place, {'attr': {'class': 'form-control autocomplete-place'}}) }}
+
+                                    <div class="form-error">{{ form_errors(form.place) }}</div>
+
                                     <ul id="suggestions"
                                         class="list-group position-absolute w-100 shadow-sm z-3 overflow-auto"
                                         style="max-height:180px;"></ul>
@@ -90,29 +114,48 @@
                                 <div class="col-md-6">
                                     {{ form_label(form.street) }}
                                     {{ form_widget(form.street, {'attr': {'class': 'form-control'}}) }}
+
+                                    <div class="form-error">{{ form_errors(form.street) }}</div>
+
                                 </div>
                                 <div class="col-md-3">
                                     {{ form_label(form.postalCode) }}
                                     {{ form_widget(form.postalCode, {'attr': {'class': 'form-control'}}) }}
+
+                                    <div class="form-error">{{ form_errors(form.postalCode) }}</div>
+
                                 </div>
                                 <div class="col-md-3">
                                     {{ form_label(form.city) }}
                                     {{ form_widget(form.city, {'attr': {'class': 'form-control'}}) }}
+
+                                    <div class="form-error">{{ form_errors(form.city) }}</div>
+
                                 </div>
 
                                 <div class="col-md-6">
                                     {{ form_label(form.gpsLatitude) }}
                                     {{ form_widget(form.gpsLatitude, {'attr': {'class': 'form-control'}}) }}
+
+                                    <div class="form-error">{{ form_errors(form.gpsLatitude) }}</div>
+
+
                                 </div>
                                 <div class="col-md-6">
                                     {{ form_label(form.gpsLongitude) }}
                                     {{ form_widget(form.gpsLongitude, {'attr': {'class': 'form-control'}}) }}
+
+                                    <div class="form-error">{{ form_errors(form.gpsLongitude) }}</div>
+
                                 </div>
 
                                 <div class="col-12">
                                     {{ form_label(form.site) }}
                                     {{ form_widget(form.site, {'attr': {'class': 'form-control'}}) }}
-                                </div>
+
+                                    <div class="form-error">{{ form_errors(form.site) }}</div>
+
+                 </div>
                             </div>
 
                             <div class="mt-4 d-flex justify-content-between">
@@ -127,7 +170,8 @@
             </div>
         </div>
 
-        {# Autocomplete JS — inchangé #}
+
+
         <script>
             const input = document.querySelector('.autocomplete-place');
             const suggestionsList = document.querySelector('#suggestions');

@@ -71,6 +71,7 @@ final class ProfileController extends AbstractController
             return $this->redirectToRoute('profile_edit');
         }
 
+
         return $this->render('profile/edit.html.twig', [
             'form' => $form->createView(),
             'is_admin' => $this->isGranted('ROLE_ADMIN'),
@@ -132,6 +133,7 @@ final class ProfileController extends AbstractController
 
             return $this->redirectToRoute('app_login');
         }
+
 
         return $this->render('registration/register.html.twig', [
             'registrationForm' => $form,

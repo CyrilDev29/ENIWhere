@@ -23,7 +23,7 @@ final class EventController extends AbstractController
 {
     public function __construct(private NominatimService $nominatimService) {}
 
-    // LISTE
+    // -------LISTE Event
     #[Route('', name: 'event_index')]
     public function index(Request $request, EventRepository $eventRepository): Response
     {
@@ -39,7 +39,7 @@ final class EventController extends AbstractController
         ]);
     }
 
-    // CRÉATION
+    //--------- CRÉATION
     #[Route('/new', name: 'event_new')]
     public function new(
         Request                $request,
@@ -99,7 +99,7 @@ final class EventController extends AbstractController
             $em->flush();
 
             $this->addFlash('success', 'Sortie créée avec succès.');
-            return $this->redirectToRoute('event_index');
+            return $this->redirectToRoute('my_events');
         }
 
         return $this->render('event/new.html.twig', [
@@ -108,7 +108,7 @@ final class EventController extends AbstractController
     }
 
 
-    // AUTOCOMPLÉTION LIEUX
+    // ----------AUTOCOMPLÉTION LIEUX-----API
     #[Route('/places/search', name: 'place_search')]
     public function placeSearch(Request $request): JsonResponse
     {
@@ -120,7 +120,7 @@ final class EventController extends AbstractController
         return new JsonResponse($results);
     }
 
-    // MES ÉVÉNEMENTS
+    // ----------MES ÉVÉNEMENTS--------
     #[Route('/my_events', name: 'my_events')]
     public function myEvents(EventRepository $repo): Response
     {
@@ -135,37 +135,94 @@ final class EventController extends AbstractController
         return $this->render('event/my_events.html.twig', ['events' => $events]);
     }
 
-    // PAGE DE GESTION
+    // ----------PAGE DE GESTION-----
     #[Route('/manage/{id}', name: 'event_manage')]
-    public function manage(
-        Event $event,
-        Request $request,
-        EntityManagerInterface $em
-    ): Response {
+    public function manage(Event $event, Request $request, EntityManagerInterface $em): Response
+    {
         $user = $this->getUser();
 
-        if (!$this->isGranted('ROLE_ADMIN') && $user !== $event->getOrganizer()) {
-            throw $this->createAccessDeniedException('Vous ne pouvez pas gérer cet événement.');
+        //------ Vérifie si l'utilisateur peut éditer
+        $canEdit = ($this->isGranted('ROLE_ADMIN') || $user === $event->getOrganizer()) && $event->isEditable();
+
+        if (!$canEdit && $event->getState() === 'ONGOING') {
+            $this->addFlash('warning', 'Cet événement est en cours et ne peut plus être modifié.');
         }
-
-        $canEdit = $this->isGranted('ROLE_ADMIN') || $user === $event->getOrganizer();
-
-
         $form = null;
         if ($canEdit) {
-            $form = $this->createForm(\App\Form\EventType::class, $event);
+            $form = $this->createForm(EventType::class, $event);
+
+
+            if (!$request->isMethod('POST')) {
+                $place = $event->getPlace();
+                $city  = $place?->getCity();
+
+                $form->get('place')->setData($place?->getName());
+                $form->get('street')->setData($place?->getStreet());
+                $form->get('gpsLatitude')->setData($place?->getGpsLatitude());
+                $form->get('gpsLongitude')->setData($place?->getGpsLongitude());
+
+                $form->get('city')->setData($city?->getName());
+                $form->get('postalCode')->setData($city?->getPostalCode());
+            }
+
             $form->handleRequest($request);
 
             if ($form->isSubmitted() && $form->isValid()) {
+                // Récupération des champs non mappés
+                $placeName  = (string) $form->get('place')->getData();
+                $street     = (string) $form->get('street')->getData();
+                $lat        = (float)  $form->get('gpsLatitude')->getData();
+                $lon        = (float)  $form->get('gpsLongitude')->getData();
+                $cityName   = (string) $form->get('city')->getData();
+                $postalCode = (string) $form->get('postalCode')->getData();
+
+                // Gestion de la ville
+                $city = $event->getPlace()?->getCity();
+                if ($cityName) {
+                    if (!$city || $city->getName() !== $cityName || $city->getPostalCode() !== $postalCode) {
+                        $city = $em->getRepository(City::class)->findOneBy([
+                            'name' => $cityName,
+                            'postalCode' => $postalCode,
+                        ]) ?? (new City())
+                            ->setName($cityName)
+                            ->setPostalCode($postalCode);
+                        $em->persist($city);
+                    }
+                } else {
+                    $city = null;
+                }
+
+                // Gestion du lieu
+                $place = $event->getPlace();
+                if ($placeName && $city) {
+                    if (!$place || $place->getName() !== $placeName || $place->getStreet() !== $street || $place->getCity()?->getId() !== $city->getId()) {
+                        $place = $em->getRepository(Place::class)->findOneBy([
+                            'name' => $placeName,
+                            'street' => $street,
+                            'city' => $city,
+                        ]) ?? (new Place())
+                            ->setName($placeName ?: 'Lieu inconnu')
+                            ->setStreet($street ?: 'Rue inconnue')
+                            ->setCity($city);
+                        $em->persist($place);
+                    }
+                    $place->setGpsLatitude($lat);
+                    $place->setGpsLongitude($lon);
+                } else {
+                    $place = null;
+                }
+
+                $event->setPlace($place);
+
                 $em->flush();
-                $this->addFlash('success', "Événement mis à jour !");
+                $this->addFlash('success', 'Événement mis à jour');
                 return $this->redirectToRoute('event_manage', ['id' => $event->getId()]);
             }
         }
 
         return $this->render('event/manage.html.twig', [
             'event' => $event,
-            'form' => $form,
+            'form'  => $form?->createView(),
             'canEdit' => $canEdit,
         ]);
     }
@@ -232,112 +289,27 @@ final class EventController extends AbstractController
         return $this->redirectToRoute('event_manage', ['id' => $event->getId()]);
     }
 
-    // ---------- ÉDITION (même page manage.html.twig, avec form) ----------
 
-    #[Route('/{id}/edit', name: 'event_edit', methods: ['GET', 'POST'])]
-    public function edit(
-        Event $event,
-        Request $request,
-        EntityManagerInterface $em
-    ): Response {
-        // Autoriser admin OU organisateur
+    #[Route('/{id}/delete', name: 'event_delete', methods: ['POST'])]
+    public function delete(Event $event, Request $request, EntityManagerInterface $em): Response
+    {
         if (!$this->isGranted('ROLE_ADMIN') && $event->getOrganizer() !== $this->getUser()) {
-            throw $this->createAccessDeniedException('Modification impossible.');
+            throw $this->createAccessDeniedException('Vous ne pouvez pas supprimer cet événement.');
         }
 
-        // Exemple : limiter l’édition à certaines places
-        $now = new \DateTimeImmutable();
-        if ($event->getState() === 'CANCELED' || ($event->getStartDateTime() && $event->getStartDateTime() <= $now)) {
-            $this->addFlash('warning', 'Cet événement n’est plus modifiable.');
-            return $this->redirectToRoute('event_manage', ['id' => $event->getId()]);
+        // Vérifier le token CSRF
+        if (!$this->isCsrfTokenValid('delete_event_'.$event->getId(), $request->request->get('_token'))) {
+            $this->addFlash('warning', 'Token invalide.');
+            return $this->redirectToRoute('my_events');
         }
 
+        $em->remove($event);
+        $em->flush();
 
-        $form = $this->createForm(EventType::class, $event, [
-            'validation_groups' => ['event_edit', 'event_create'],
-        ]);
-
-        // PRÉ-REMPLIR les champs non mappés (GET)
-        if (!$request->isMethod('POST')) {
-            $place = $event->getPlace();
-            $city  = $place?->getCity();
-
-            $form->get('place')->setData($place?->getName());
-            $form->get('street')->setData($place?->getStreet());
-            $form->get('gpsLatitude')->setData($place?->getGpsLatitude());
-            $form->get('gpsLongitude')->setData($place?->getGpsLongitude());
-
-            $form->get('city')->setData($city?->getName());
-            $form->get('postalCode')->setData($city?->getPostalCode());
-        }
-
-        $form->handleRequest($request);
-
-        if ($form->isSubmitted() && $form->isValid()) {
-            // LIRE les champs non mappés
-            $placeName  = (string) $form->get('place')->getData();
-            $cityName   = (string) $form->get('city')->getData();
-            $lat        = (float)  $form->get('gpsLatitude')->getData();
-            $lon        = (float)  $form->get('gpsLongitude')->getData();
-            $street     = (string) $form->get('street')->getData();
-            $postalCode = (string) $form->get('postalCode')->getData();
-
-            // VILLE
-            $city = $event->getPlace()?->getCity();
-            if ($cityName) {
-                if (!$city || $city->getName() !== $cityName || $city->getPostalCode() !== $postalCode) {
-                    $city = $em->getRepository(City::class)->findOneBy([
-                        'name'       => $cityName,
-                        'postalCode' => $postalCode,
-                    ]) ?? (new City())
-                        ->setName($cityName)
-                        ->setPostalCode($postalCode);
-                    $em->persist($city);
-                }
-            } else {
-                $city = null;
-            }
-
-            // LIEU
-            $place = $event->getPlace();
-            if ($placeName && $city) {
-                if (
-                    !$place ||
-                    $place->getName() !== $placeName ||
-                    $place->getStreet() !== $street ||
-                    $place->getCity()?->getId() !== $city->getId()
-                ) {
-                    $place = $em->getRepository(Place::class)->findOneBy([
-                        'name'   => $placeName,
-                        'street' => $street,
-                        'city'   => $city,
-                    ]) ?? (new Place())
-                        ->setName($placeName ?: 'Lieu inconnu')
-                        ->setStreet($street ?: 'Rue inconnue')
-                        ->setCity($city);
-                    $em->persist($place);
-                }
-                // MAJ coord.
-                $place->setGpsLatitude($lat);
-                $place->setGpsLongitude($lon);
-            } else {
-                $place = null;
-            }
-
-            $event->setPlace($place);
-
-            $em->flush();
-            $this->addFlash('success', 'Événement mis à jour ');
-            return $this->redirectToRoute('event_manage', ['id' => $event->getId()]);
-        }
-
-
-        return $this->render('event/manage.html.twig', [
-            'event' => $event,
-            'form'  => $form->createView(),
-            'edit_mode' => true,
-        ]);
+        $this->addFlash('success', 'Événement supprimé avec succès.');
+        return $this->redirectToRoute('my_events');
     }
+
 
 
 }

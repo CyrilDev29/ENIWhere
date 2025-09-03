@@ -47,6 +47,10 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         min: 8,
         minMessage: "Le mot de passe doit contenir au moins {{ limit }} caractères."
     )]
+    #[Assert\Regex(
+        pattern: "/^(?=.*[0-9])(?=.*[!@#$%^&*(),.?\":{}|<>]).{8,}$/",
+        message: "Le mot de passe doit contenir au moins 8 caractères, un chiffre et un caractère spécial."
+    )]
     private ?string $password = null;
 
     #[ORM\Column(length: 255)]
@@ -58,8 +62,17 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?string $firstName = null;
 
     #[ORM\Column(length: 15, nullable: true)]
+    #[Assert\Length(
+        min: 10,
+        max: 15,
+        minMessage: "Le numéro de téléphone doit contenir au moins {{ limit }} caractères.",
+        maxMessage: "Le numéro de téléphone ne peut pas dépasser {{ limit }} caractères."
+    )]
+    #[Assert\Regex(
+        pattern: "/^(0[1-9]\d{8}|(\+33|0033)[1-9]\d{8})$/",
+        message: "Le numéro de téléphone doit être un numéro français valide (ex : 0612345678 ou +33612345678)."
+    )]
     private ?string $phoneNumber = null;
-
     #[ORM\Column]
     private bool $isVerified = false;
 
@@ -100,6 +113,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[ORM\ManyToOne(inversedBy: 'users')]
     #[ORM\JoinColumn(nullable: true)]
+    #[Assert\NotBlank(message: "Le site est obligatoire.")]
     private ?Site $site = null;
 
 

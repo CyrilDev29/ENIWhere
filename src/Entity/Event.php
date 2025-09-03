@@ -8,9 +8,12 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
 #[ORM\Entity(repositoryClass: EventRepository::class)]
 #[ORM\HasLifecycleCallbacks]
+#[Assert\Callback('validateStartDate')]
+
 class Event
 {
 
@@ -20,23 +23,29 @@ class Event
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
+    #[Assert\NotBlank(message: 'Le nom de l’événement est obligatoire.')]
     private ?string $name = null;
 
-    #[ORM\Column]
-    #[Assert\GreaterThan('today', message: "Attention la date de debut ne doit pas être postérieur à {{compared_value}}.}}!!")]
+    #[ORM\Column(type: 'datetime', nullable: false)]
+    #[Assert\NotNull(message: 'La date de début est obligatoire.')]
     private ?\DateTime $startDateTime = null;
 
-    #[ORM\Column]
+
+    #[ORM\Column(type: 'integer', nullable: false)]
+    #[Assert\NotBlank(message: 'La durée est obligatoire.')]
     private ?float $duration = null;
 
     #[ORM\Column]
-    #[Assert\LessThan(propertyPath: 'startDateTime')]
+    #[Assert\NotNull(message: 'La date limite d’inscription est obligatoire.')]
+    #[Assert\LessThan(propertyPath: 'startDateTime', message: 'La date limite doit être avant la date de début.')]
     private ?\DateTime $registrationDeadline = null;
 
-    #[ORM\Column]
+    #[ORM\Column(type: 'integer', nullable: false)]
+    #[Assert\NotBlank(message: 'Le nombre maximum de participants est obligatoire.')]
     private ?int $maxParticipant = null;
 
     #[ORM\Column(type: Types::TEXT)]
+    #[Assert\NotBlank(message: 'La description de l’événement est obligatoire.')]
     private ?string $description = null;
 
     #[ORM\Column(length: 255, nullable: true)]
@@ -69,6 +78,7 @@ class Event
 
     #[ORM\ManyToOne(inversedBy: 'events')]
     #[ORM\JoinColumn(nullable: true)]
+    #[Assert\NotBlank(message: 'Le site de l’événement est obligatoire.')]
     private ?Site $site = null;
 
     #[ORM\Column(length: 20)]
@@ -103,7 +113,7 @@ class Event
         return $this->startDateTime;
     }
 
-    public function setStartDateTime(\DateTime $startDateTime): static
+    public function setStartDateTime(?\DateTime $startDateTime): static
     {
         $this->startDateTime = $startDateTime;
 
@@ -127,7 +137,7 @@ class Event
         return $this->registrationDeadline;
     }
 
-    public function setRegistrationDeadline(\DateTime $registrationDeadline): static
+    public function setRegistrationDeadline(?\DateTime $registrationDeadline): static
     {
         $this->registrationDeadline = $registrationDeadline;
 
@@ -295,6 +305,30 @@ class Event
     {
         $this->state = $state;
         return $this;
+    }
+
+    public function validateStartDate(ExecutionContextInterface $context): void
+    {
+        $now = new \DateTime();
+
+        if ($this->startDateTime !== null && $this->startDateTime <= $now) {
+            $context->buildViolation('La date de début doit être postérieure à aujourd’hui.')
+                ->atPath('startDateTime')
+                ->addViolation();
+        }
+
+        if ($this->registrationDeadline !== null && $this->startDateTime !== null) {
+            if ($this->registrationDeadline >= $this->startDateTime) {
+                $context->buildViolation('La date limite d’inscription doit être avant la date de début.')
+                    ->atPath('registrationDeadline')
+                    ->addViolation();
+            }
+        }
+    }
+
+    public function isEditable(): bool
+    {
+        return !in_array($this->state, ['ONGOING', 'FINISHED', 'CANCELED', 'ARCHIVED'], true);
     }
 
 

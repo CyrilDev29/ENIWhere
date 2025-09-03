@@ -5,6 +5,16 @@
     <div class="container mt-4">
         <h1 class="mb-4">Villes</h1>
 
+        {# Flash messages #}
+        {% for label, messages in app.flashes %}
+            {% for message in messages %}
+                <div class="alert alert-{{ label }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        {% endfor %}
+
         <a href="{{ path('city_new') }}" class="btn btn-primary mb-3">Nouvelle ville</a>
 
         <div class="table-responsive">

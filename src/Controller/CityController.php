@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\City;
 use App\Form\CityType;
 use App\Repository\CityRepository;
+use Doctrine\DBAL\Exception\ForeignKeyConstraintViolationException;
 use Doctrine\ORM\EntityManagerInterface;
 
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -66,10 +67,15 @@ final class CityController extends AbstractController
     public function delete(City $city, Request $request, EntityManagerInterface $em): Response
     {
         if ($this->isCsrfTokenValid('delete_city_'.$city->getId(), $request->request->get('_token'))) {
-            $em->remove($city);
-            $em->flush();
-            $this->addFlash('success', 'Ville supprimée avec succès!');
+            try {
+                $em->remove($city);
+                $em->flush();
+                $this->addFlash('success', 'Ville supprimée avec succès!');
+            } catch (ForeignKeyConstraintViolationException $e) {
+                $this->addFlash('warning', 'Impossible de supprimer cette ville : elle est utilisée par un ou plusieurs lieux.');
+            }
         }
+
 
         return $this->redirectToRoute('city_index');
     }

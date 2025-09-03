@@ -22,13 +22,15 @@ final class EventType extends AbstractType
             // --- Champs mappés à Event ---
             ->add('name', TextType::class, [
                 'label' => "Nom de l'événement",
-                'required' => true,
+                'required' => false,
                 'attr' => ['placeholder' => "Ex: Sortie randonnée"],
             ])
             ->add('startDateTime', DateTimeType::class, [
                 'label'  => 'Date de début',
                 'widget' => 'single_text',
-                'required' => true,
+                'required' => false,
+                'attr' => ['min' => (new \DateTime())->format('Y-m-d\TH:i')],
+
             ])
             ->add('duration', IntegerType::class, [
                 'label' => 'Durée (minutes)',
