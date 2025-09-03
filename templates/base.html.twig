@@ -44,6 +44,7 @@
                         <li class="nav-item"><a class="nav-link" href="{{ path('admin_user_list') }}">Utilisateurs</a></li>
                         <li class="nav-item"><a class="nav-link" href="{{ path('admin_user_create') }}">Créer un utilisateur</a></li>
                         <li class="nav-item"><a class="nav-link" href="{{ path('admin_import_users') }}">Importer des utilisateurs</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{{ path('my_events') }}">Gérer les sorties</a></li>
                     {% elseif is_granted('ROLE_USER') %}
                         <li class="nav-item"><a class="nav-link" href="{{ path('event_index') }}">Toutes les sorties</a></li>
                         <li class="nav-item"><a class="nav-link" href="{{ path('event_new') }}">Créer une sortie</a></li>
@@ -107,6 +108,7 @@
                             <li><a href="{{ path('admin_user_list') }}">Utilisateurs</a></li>
                             <li><a href="{{ path('admin_user_create') }}">Créer un utilisateur</a></li>
                             <li><a href="{{ path('admin_import_users') }}">Importer des utilisateurs</a></li>
+                            <li><a href="{{ path('my_events') }}">Gérer les sorties</a></li>
                         {% elseif is_granted('ROLE_USER') %}
                             <li><a href="{{ path('event_index') }}">Toutes les sorties</a></li>
                             <li><a href="{{ path('my_events') }}">Mes sorties</a></li>
