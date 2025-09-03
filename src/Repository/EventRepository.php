@@ -41,7 +41,7 @@ class EventRepository extends ServiceEntityRepository
     //        ;
     //    }
 
-    public function searchByFilters(array $f, ?\App\Entity\User $user,bool $isAdmin = false): array
+    public function searchByFilters(array $f, ?\App\Entity\User $user, bool $isAdmin = false): array
     {
         $qb = $this->createQueryBuilder('e')
             ->leftJoin('e.registrations', 'r')
@@ -93,28 +93,29 @@ class EventRepository extends ServiceEntityRepository
                 ->setParameter('user', $user);
         }
 
-        // Inscrit ou non inscrit
+        // Utilisateur inscrit
         if (!empty($f['isRegistered']) && $user && empty($f['isNotRegistered'])) {
-            $qb->andWhere(':user MEMBER OF e.registrations AND r.workflowState IN (:states)' )
+            $qb->andWhere('r.participant = :user')
+                ->andWhere('r.workflowState IN (:states)')
                 ->setParameter('user', $user)
                 ->setParameter('states', ['REGISTERED', 'NOTIFIED']);
         }
+
+        // Utilisateur non inscrit
         if (!empty($f['isNotRegistered']) && $user && empty($f['isRegistered'])) {
-            $qb->andWhere(':user NOT MEMBER OF e.registrations')
+            $qb->andWhere($qb->expr()->not(
+                $qb->expr()->exists(
+                    $this->_em->createQueryBuilder()
+                        ->select('1')
+                        ->from('App\Entity\Registration', 'r2')
+                        ->where('r2.event = e')
+                        ->andWhere('r2.participant = :user')
+                        ->getDQL()
+                )
+            ))
                 ->setParameter('user', $user);
         }
 
         return $qb->getQuery()->getResult();
     }
-
-
-
-
-
 }
-
-
-
-
-
-
