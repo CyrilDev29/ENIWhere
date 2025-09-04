@@ -105,7 +105,7 @@ class EventRepository extends ServiceEntityRepository
         if (!empty($f['isNotRegistered']) && $user && empty($f['isRegistered'])) {
             $qb->andWhere($qb->expr()->not(
                 $qb->expr()->exists(
-                    $this->_em->createQueryBuilder()
+                    $this->getEntityManager()->createQueryBuilder()
                         ->select('1')
                         ->from('App\Entity\Registration', 'r2')
                         ->where('r2.event = e')
